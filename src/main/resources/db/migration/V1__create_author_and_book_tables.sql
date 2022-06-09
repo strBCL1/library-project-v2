@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS "author" (
+    id BIGSERIAL NOT NULL,
+    first_name VARCHAR(45) NULL,
+    last_name VARCHAR(45) NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS "book" (
+    id BIGSERIAL NOT NULL,
+    title VARCHAR(255) NULL,
+    PRIMARY KEY (id)
+);

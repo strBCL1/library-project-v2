@@ -28,8 +28,7 @@ public class Author extends BaseIdEntity {
     )
     private Set<Book> books = new HashSet<>();
 
-    public Author(final Long id, final String firstName, final String lastName, final Set<Book> books) {
-        super(id);
+    public Author(final String firstName, final String lastName, final Set<Book> books) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.books = Set.copyOf(books);
@@ -37,5 +36,49 @@ public class Author extends BaseIdEntity {
 
     protected Author() {
         super();
+    }
+
+    public static final class AuthorBuilder {
+        private String firstName;
+        private String lastName;
+        private Set<Book> books = new HashSet<>();
+
+        private AuthorBuilder() {
+        }
+
+        public static AuthorBuilder anAuthor() {
+            return new AuthorBuilder();
+        }
+
+        public AuthorBuilder firstName(String firstName) {
+            this.firstName = firstName;
+            return this;
+        }
+
+        public AuthorBuilder lastName(String lastName) {
+            this.lastName = lastName;
+            return this;
+        }
+
+        public AuthorBuilder books(Set<Book> books) {
+            this.books = books;
+            return this;
+        }
+
+        public Author build() {
+            return new Author(firstName, lastName, books);
+        }
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public Set<Book> getBooks() {
+        return books;
     }
 }
