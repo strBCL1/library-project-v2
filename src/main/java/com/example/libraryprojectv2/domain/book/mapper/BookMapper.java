@@ -2,7 +2,6 @@ package com.example.libraryprojectv2.domain.book.mapper;
 
 import com.example.libraryprojectv2.domain.author.dto.AuthorNameDto;
 import com.example.libraryprojectv2.domain.author.mapper.AuthorMapper;
-import com.example.libraryprojectv2.domain.author.model.Author;
 import com.example.libraryprojectv2.domain.book.dto.BookDto;
 import com.example.libraryprojectv2.domain.book.dto.BookTitleDto;
 import com.example.libraryprojectv2.domain.book.model.Book;

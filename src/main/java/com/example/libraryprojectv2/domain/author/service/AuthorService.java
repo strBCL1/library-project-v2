@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 
-import static java.lang.String.format;
+import static java.text.MessageFormat.format;
 
 @Service
 public class AuthorService {
@@ -33,7 +33,7 @@ public class AuthorService {
         final Author author = authorRepository
                 .findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(
-                        format("Employee with id {0} not found!", id)
+                        format("Author with id of {0} not found!", id)
                 ));
 
         final AuthorDto authorDto = authorMapper.authorToAuthorDto(author);

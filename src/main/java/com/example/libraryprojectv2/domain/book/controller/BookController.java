@@ -19,7 +19,7 @@ public class BookController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public BookDto getBookById(@PathVariable @NotNull final Long id) {
+    public BookDto getBookById(@PathVariable final long id) {
         final BookDto bookDto = bookService.getBookById(id);
         return bookDto;
     }

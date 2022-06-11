@@ -2,14 +2,13 @@ package com.example.libraryprojectv2.domain.book.service;
 
 import com.example.libraryprojectv2.domain.book.dao.BookRepository;
 import com.example.libraryprojectv2.domain.book.dto.BookDto;
-import com.example.libraryprojectv2.domain.book.dto.BookTitleDto;
 import com.example.libraryprojectv2.domain.book.mapper.BookMapper;
 import com.example.libraryprojectv2.domain.book.model.Book;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 
-import static java.lang.String.format;
+import static java.text.MessageFormat.format;
 
 @Service
 public class BookService {
@@ -25,7 +24,7 @@ public class BookService {
         final Book book = bookRepository
                 .findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(
-                        format("Book with id {0} not found!", id)
+                        format("Book with id of {0} not found!", id)
                 ));
 
         final BookDto bookDto = bookMapper.bookToBookDto(book);
