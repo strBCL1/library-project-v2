@@ -1,16 +1,9 @@
 package com.example.libraryprojectv2.domain.book.mapper;
 
-import com.example.libraryprojectv2.domain.author.dto.AuthorNameDto;
-import com.example.libraryprojectv2.domain.author.mapper.AuthorMapper;
-import com.example.libraryprojectv2.domain.author.model.Author;
-import com.example.libraryprojectv2.domain.book.dto.BookDto;
-import com.example.libraryprojectv2.domain.book.dto.BookTitleDto;
+import com.example.libraryprojectv2.domain.book.dto.BookDataDto;
 import com.example.libraryprojectv2.domain.book.model.Book;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
-
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 
@@ -19,36 +12,22 @@ public interface BookMapper {
 
     BookMapper INSTANCE = Mappers.getMapper(BookMapper.class);
 
-    default Book bookTitleDtoToBook(final BookTitleDto bookTitleDto) {
-        if (isNull(bookTitleDto)) {
+    default Book bookDataDtoToBook(final BookDataDto bookDataDto) {
+        if (isNull(bookDataDto)) {
             return null;
         }
 
-        return Book.BookBuilder
-                .aBook()
-                .title(bookTitleDto.title())
+        return Book.builder()
+                .isbnId(bookDataDto.getIsbnId())
+                .title(bookDataDto.getTitle())
                 .build();
     }
 
-    default BookTitleDto bookToBookTitleDto(final Book book) {
+    default BookDataDto bookToBookDataDto(final Book book) {
         if (isNull(book)) {
             return null;
         }
 
-        return new BookTitleDto(book.getTitle());
-    }
-
-    default BookDto bookToBookDto(final Book book) {
-        if (isNull(book)) {
-            return null;
-        }
-
-        final Set<AuthorNameDto> authorNameDtos = book
-                .getAuthors()
-                .stream()
-                .map(AuthorMapper.INSTANCE::authorToAuthorNameDto)
-                .collect(Collectors.toSet());
-
-        return new BookDto(book.getTitle(), authorNameDtos);
+        return new BookDataDto(book.getIsbnId(), book.getTitle());
     }
 }

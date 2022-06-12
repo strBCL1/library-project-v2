@@ -1,7 +1,7 @@
 package com.example.libraryprojectv2.domain.author.model;
 
 import com.example.libraryprojectv2.domain.book.model.Book;
-import com.example.libraryprojectv2.domain.id.model.BaseIdEntity;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -9,7 +9,16 @@ import java.util.Set;
 
 @Entity
 @Table(name = "author")
-public class Author extends BaseIdEntity {
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@Builder
+public class Author {
+
+    @Id
+    @Column(name = "orcid_id", length = 16)
+    private String orcidId;
 
     @Column(name = "first_name")
     private String firstName;
@@ -19,66 +28,13 @@ public class Author extends BaseIdEntity {
 
     @ManyToMany(cascade = {
             CascadeType.PERSIST,
-            CascadeType.MERGE
-    })
+            CascadeType.MERGE,
+            CascadeType.REFRESH
+    }, fetch = FetchType.LAZY)
     @JoinTable(
             name = "author_book",
-            joinColumns = @JoinColumn(name = "author_id"),
-            inverseJoinColumns = @JoinColumn(name = "book_id")
+            joinColumns = @JoinColumn(name = "orcid_id"),
+            inverseJoinColumns = @JoinColumn(name = "isbn_id")
     )
     private Set<Book> books = new HashSet<>();
-
-    public Author(final String firstName, final String lastName, final Set<Book> books) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.books = Set.copyOf(books);
-    }
-
-    protected Author() {
-        super();
-    }
-
-    public static final class AuthorBuilder {
-        private String firstName;
-        private String lastName;
-        private Set<Book> books = new HashSet<>();
-
-        private AuthorBuilder() {
-        }
-
-        public static AuthorBuilder anAuthor() {
-            return new AuthorBuilder();
-        }
-
-        public AuthorBuilder firstName(String firstName) {
-            this.firstName = firstName;
-            return this;
-        }
-
-        public AuthorBuilder lastName(String lastName) {
-            this.lastName = lastName;
-            return this;
-        }
-
-        public AuthorBuilder books(Set<Book> books) {
-            this.books = books;
-            return this;
-        }
-
-        public Author build() {
-            return new Author(firstName, lastName, books);
-        }
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public Set<Book> getBooks() {
-        return books;
-    }
 }

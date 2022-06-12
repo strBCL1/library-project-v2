@@ -1,4 +1,4 @@
-package com.example.libraryprojectv2.configuration;
+package com.example.libraryprojectv2.configuration.swagger2;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

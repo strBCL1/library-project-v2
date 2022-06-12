@@ -1,13 +1,19 @@
 package com.example.libraryprojectv2.domain.author.dto;
 
-import com.example.libraryprojectv2.domain.book.dto.BookTitleDto;
-import org.hibernate.validator.constraints.Length;
+import com.example.libraryprojectv2.domain.book.dto.BookDataDto;
+import lombok.Getter;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import java.util.Set;
 
-public record AuthorDto(
-        @NotBlank @Length(max = 45) String firstName,
-        @NotBlank @Length(max = 45) String lastName,
-        @Valid Set<BookTitleDto> bookTitleDtos) {}
+@Getter
+public class AuthorDto extends AuthorDataDto {
+
+    @Valid
+    private final Set<BookDataDto> bookDataDtos;
+
+    public AuthorDto(String orcidId, String firstName, String lastName, Set<BookDataDto> bookDataDtos) {
+        super(orcidId, firstName, lastName);
+        this.bookDataDtos = bookDataDtos;
+    }
+}

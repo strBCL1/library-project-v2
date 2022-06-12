@@ -1,0 +1,40 @@
+package com.example.libraryprojectv2.configuration.response.handler;
+
+import com.example.libraryprojectv2.configuration.response.message.ErrorMessage;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import javax.persistence.EntityNotFoundException;
+import javax.validation.ConstraintViolationException;
+
+import static java.text.MessageFormat.format;
+
+@RestControllerAdvice
+public class RestExceptionHandler {
+
+    @ExceptionHandler(value = { EntityNotFoundException.class })
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorMessage handleEntityNotFoundException(EntityNotFoundException exception) {
+        return new ErrorMessage(exception.getMessage());
+    }
+
+    @ExceptionHandler(value = { ConstraintViolationException.class })
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorMessage handleConstraintViolationException(ConstraintViolationException exception) {
+        final String cause = exception.getMessage();
+        return new ErrorMessage(cause.substring(cause.indexOf(": ") + 2));
+    }
+
+    @ExceptionHandler(value = { MethodArgumentNotValidException.class })
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorMessage handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
+        final String message = exception.getFieldError().getDefaultMessage();
+        final String rejectedValue = exception.getFieldError().getRejectedValue().toString();
+        return new ErrorMessage(
+                format("Message: ''{0}'', submitted value: ''{1}''", message, rejectedValue)
+        );
+    }
+}

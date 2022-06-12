@@ -1,6 +1,7 @@
 package com.example.libraryprojectv2.domain.author.service;
 
 import com.example.libraryprojectv2.domain.author.dao.AuthorRepository;
+import com.example.libraryprojectv2.domain.author.dto.AuthorDataDto;
 import com.example.libraryprojectv2.domain.author.dto.AuthorDto;
 import com.example.libraryprojectv2.domain.author.mapper.AuthorMapper;
 import com.example.libraryprojectv2.domain.author.model.Author;
@@ -9,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 
-import static java.lang.String.format;
+import static java.text.MessageFormat.format;
 
 @Service
 public class AuthorService {
@@ -22,18 +23,18 @@ public class AuthorService {
     }
 
     @Transactional
-    public AuthorDto createAuthor(final AuthorDto authorDto) {
-        final Author authorToBeSaved = authorMapper.authorDtoToAuthor(authorDto);
+    public AuthorDataDto createAuthor(final AuthorDataDto authorDataDto) {
+        final Author authorToBeSaved = authorMapper.authorDataDtoToAuthor(authorDataDto);
         final Author savedAuthor = authorRepository.save(authorToBeSaved);
-        final AuthorDto savedAuthorDto = authorMapper.authorToAuthorDto(savedAuthor);
-        return savedAuthorDto;
+        final AuthorDataDto savedAuthorDataDto = authorMapper.authorToAuthorDataDto(savedAuthor);
+        return savedAuthorDataDto;
     }
 
-    public AuthorDto getAuthorById(final long id) {
+    public AuthorDto getAuthorByOrcidId(final String orcidId) {
         final Author author = authorRepository
-                .findById(id)
+                .findById(orcidId)
                 .orElseThrow(() -> new EntityNotFoundException(
-                        format("Employee with id {0} not found!", id)
+                        format("Author with ORCID code of {0} not found!", orcidId)
                 ));
 
         final AuthorDto authorDto = authorMapper.authorToAuthorDto(author);
