@@ -8,7 +8,10 @@ import com.example.libraryprojectv2.domain.author.model.Author;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
+
+import java.util.Optional;
 
 import static java.text.MessageFormat.format;
 
@@ -24,8 +27,18 @@ public class AuthorService {
 
     @Transactional
     public AuthorDataDto createAuthor(final AuthorDataDto authorDataDto) {
-        final Author authorToBeSaved = authorMapper.authorDataDtoToAuthor(authorDataDto);
-        final Author savedAuthor = authorRepository.save(authorToBeSaved);
+        final Author newAuthor = authorMapper.authorDataDtoToAuthor(authorDataDto);
+        final String newAuthorOrcidId = newAuthor.getOrcidId();
+
+        final Optional<Author> optionalAuthor = authorRepository.findById(newAuthorOrcidId);
+
+        if (optionalAuthor.isPresent()) {
+            throw new EntityExistsException(
+                    format("Author with ORCID code of {0} already exists!", newAuthorOrcidId)
+            );
+        }
+
+        final Author savedAuthor = authorRepository.save(newAuthor);
         final AuthorDataDto savedAuthorDataDto = authorMapper.authorToAuthorDataDto(savedAuthor);
         return savedAuthorDataDto;
     }

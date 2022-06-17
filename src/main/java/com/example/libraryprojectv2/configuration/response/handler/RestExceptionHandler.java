@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.ConstraintViolationException;
 
@@ -36,5 +37,11 @@ public class RestExceptionHandler {
         return new ErrorMessage(
                 format("Message: ''{0}'', submitted value: ''{1}''", message, rejectedValue)
         );
+    }
+
+    @ExceptionHandler(value = { EntityExistsException.class })
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorMessage handleEntityExistsException(EntityExistsException exception) {
+        return new ErrorMessage(exception.getMessage());
     }
 }
