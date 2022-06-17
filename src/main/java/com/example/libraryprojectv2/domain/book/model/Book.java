@@ -5,6 +5,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -14,6 +15,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Builder
+@ToString(exclude = "authors")
 public class Book {
 
     @Id
@@ -25,4 +27,17 @@ public class Book {
 
     @ManyToMany(mappedBy = "books", fetch = FetchType.LAZY)
     private Set<Author> authors = new HashSet<>();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Book book = (Book) o;
+        return isbnId.equals(book.isbnId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(isbnId);
+    }
 }

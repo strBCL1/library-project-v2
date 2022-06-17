@@ -5,6 +5,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -14,6 +15,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Builder
+@ToString(exclude = "books")
 public class Author {
 
     @Id
@@ -37,4 +39,22 @@ public class Author {
             inverseJoinColumns = @JoinColumn(name = "isbn_id")
     )
     private Set<Book> books = new HashSet<>();
+
+    public void addBook(final Book book) {
+        this.books.add(book);
+        book.getAuthors().add(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Author author = (Author) o;
+        return orcidId.equals(author.orcidId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(orcidId);
+    }
 }

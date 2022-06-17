@@ -9,6 +9,7 @@ import com.example.libraryprojectv2.domain.book.model.Book;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -30,12 +31,7 @@ public interface AuthorMapper {
                 .map(BookMapper.INSTANCE::bookDataDtoToBook)
                 .collect(Collectors.toSet());
 
-        return Author.builder()
-                .orcidId(authorDto.getOrcidId())
-                .firstName(authorDto.getFirstName())
-                .lastName(authorDto.getLastName())
-                .books(books)
-                .build();
+        return new Author(authorDto.getOrcidId(), authorDto.getFirstName(), authorDto.getLastName(), books);
     }
 
     default Author authorDataDtoToAuthor(final AuthorDataDto authorDataDto) {
@@ -43,11 +39,9 @@ public interface AuthorMapper {
             return null;
         }
 
-        return Author.builder()
-                .orcidId(authorDataDto.getOrcidId())
-                .firstName(authorDataDto.getFirstName())
-                .lastName(authorDataDto.getLastName())
-                .build();
+        final Set<Book> books = new HashSet<>();
+
+        return new Author(authorDataDto.getOrcidId(), authorDataDto.getFirstName(), authorDataDto.getLastName(), books);
     }
 
     default AuthorDataDto authorToAuthorDataDto(final Author author) {
