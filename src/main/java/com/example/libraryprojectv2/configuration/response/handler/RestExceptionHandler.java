@@ -1,5 +1,6 @@
 package com.example.libraryprojectv2.configuration.response.handler;
 
+import com.example.libraryprojectv2.configuration.exception.ElementAlreadyExistsException;
 import com.example.libraryprojectv2.configuration.response.message.ErrorMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -42,6 +43,12 @@ public class RestExceptionHandler {
     @ExceptionHandler(value = { EntityExistsException.class })
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorMessage handleEntityExistsException(EntityExistsException exception) {
+        return new ErrorMessage(exception.getMessage());
+    }
+
+    @ExceptionHandler(value = { ElementAlreadyExistsException.class })
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorMessage handleElementAlreadyExistsException(ElementAlreadyExistsException exception) {
         return new ErrorMessage(exception.getMessage());
     }
 }

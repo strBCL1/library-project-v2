@@ -1,9 +1,14 @@
 package com.example.libraryprojectv2.domain.book.mapper;
 
+import com.example.libraryprojectv2.domain.author.model.Author;
 import com.example.libraryprojectv2.domain.book.dto.BookDataDto;
+import com.example.libraryprojectv2.domain.book.dto.BookIsbnDto;
 import com.example.libraryprojectv2.domain.book.model.Book;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static java.util.Objects.isNull;
 
@@ -17,10 +22,9 @@ public interface BookMapper {
             return null;
         }
 
-        return Book.builder()
-                .isbnId(bookDataDto.getIsbnId())
-                .title(bookDataDto.getTitle())
-                .build();
+        final Set<Author> authors = new HashSet<>();
+
+        return new Book(bookDataDto.getIsbnId(), bookDataDto.getTitle(), authors);
     }
 
     default BookDataDto bookToBookDataDto(final Book book) {
@@ -29,5 +33,15 @@ public interface BookMapper {
         }
 
         return new BookDataDto(book.getIsbnId(), book.getTitle());
+    }
+
+    default Book BookIsbnDtoToBook(final BookIsbnDto bookIsbnDto) {
+        if (isNull(bookIsbnDto)) {
+            return null;
+        }
+
+        final Set<Author> authors = new HashSet<>();
+
+        return new Book(bookIsbnDto.getIsbnId(), null, authors);
     }
 }
