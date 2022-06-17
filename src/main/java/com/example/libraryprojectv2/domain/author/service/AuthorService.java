@@ -3,6 +3,7 @@ package com.example.libraryprojectv2.domain.author.service;
 import com.example.libraryprojectv2.domain.author.dao.AuthorRepository;
 import com.example.libraryprojectv2.domain.author.dto.AuthorDataDto;
 import com.example.libraryprojectv2.domain.author.dto.AuthorDto;
+import com.example.libraryprojectv2.domain.author.dto.AuthorDtoList;
 import com.example.libraryprojectv2.domain.author.mapper.AuthorMapper;
 import com.example.libraryprojectv2.domain.author.model.Author;
 import com.example.libraryprojectv2.domain.book.dao.BookRepository;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -101,5 +103,18 @@ public class AuthorService {
         final Author updatedAuthor = authorRepository.save(author);
         final AuthorDto authorDto = authorMapper.authorToAuthorDto(updatedAuthor);
         return authorDto;
+    }
+
+    public AuthorDtoList getAuthors() {
+        final List<Author> authors = authorRepository.findAll();
+
+        final List<AuthorDto> authorDtos = authors
+                .stream()
+                .map(authorMapper::authorToAuthorDto)
+                .collect(Collectors.toList());
+
+        final AuthorDtoList authorDtoList = new AuthorDtoList(authorDtos);
+
+        return authorDtoList;
     }
 }

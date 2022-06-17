@@ -2,6 +2,7 @@ package com.example.libraryprojectv2.domain.author.controller;
 
 import com.example.libraryprojectv2.domain.author.dto.AuthorDataDto;
 import com.example.libraryprojectv2.domain.author.dto.AuthorDto;
+import com.example.libraryprojectv2.domain.author.dto.AuthorDtoList;
 import com.example.libraryprojectv2.domain.author.service.AuthorService;
 import com.example.libraryprojectv2.domain.book.dto.BookIsbnDtoList;
 import org.springframework.http.HttpStatus;
@@ -43,5 +44,12 @@ public class AuthorController {
                                          @PathVariable("orcid-id") @Pattern(regexp = "\\d{16}", message = "Author's ORCID code must only have digits of length of 16!") final String orcidId) {
         final AuthorDto updatedAuthorDto = authorService.updateBooksOfAuthor(bookIsbnDtoList, orcidId);
         return updatedAuthorDto;
+    }
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public AuthorDtoList getAuthors() {
+        final AuthorDtoList authorDtoList = authorService.getAuthors();
+        return authorDtoList;
     }
 }
