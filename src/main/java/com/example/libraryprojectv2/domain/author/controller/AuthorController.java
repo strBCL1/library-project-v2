@@ -25,6 +25,7 @@ public class AuthorController {
         this.authorService = authorService;
     }
 
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public AuthorDataDto createAuthor(@RequestBody @NotNull @Valid final AuthorWithOrcidDto authorWithOrcidDto) {
@@ -32,12 +33,14 @@ public class AuthorController {
         return savedAuthorDataDto;
     }
 
+
     @GetMapping("/{orcid-id}")
     @ResponseStatus(HttpStatus.OK)
     public AuthorDto getAuthorById(@PathVariable("orcid-id") @Pattern(regexp = "\\d{16}", message = "Author's ORCID code must only have digits of length of 16!") final String orcidId) {
         final AuthorDto authorDto = authorService.getAuthorByOrcidId(orcidId);
         return authorDto;
     }
+
 
     @PutMapping("/{orcid-id}/books")
     @ResponseStatus(HttpStatus.OK)
@@ -47,6 +50,7 @@ public class AuthorController {
         return updatedAuthorDto;
     }
 
+
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public AuthorDtoList getAuthors() {
@@ -54,11 +58,13 @@ public class AuthorController {
         return authorDtoList;
     }
 
+
     @DeleteMapping("/{orcid-id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAuthor(@PathVariable("orcid-id") @Pattern(regexp = "\\d{16}", message = "Author's ORCID code must only have digits of length of 16!") final String orcidId) {
         authorService.deleteAuthor(orcidId);
     }
+
 
     @PutMapping("/{orcid-id}")
     @ResponseStatus(HttpStatus.OK)

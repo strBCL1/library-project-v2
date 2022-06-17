@@ -17,11 +17,13 @@ import static java.text.MessageFormat.format;
 @RestControllerAdvice
 public class RestExceptionHandler {
 
+
     @ExceptionHandler(value = { EntityNotFoundException.class })
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorMessage handleEntityNotFoundException(EntityNotFoundException exception) {
         return new ErrorMessage(exception.getMessage());
     }
+
 
     @ExceptionHandler(value = { ConstraintViolationException.class })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -29,6 +31,7 @@ public class RestExceptionHandler {
         final String cause = exception.getMessage();
         return new ErrorMessage(cause.substring(cause.indexOf(": ") + 2));
     }
+
 
     @ExceptionHandler(value = { MethodArgumentNotValidException.class })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -40,11 +43,13 @@ public class RestExceptionHandler {
         );
     }
 
+
     @ExceptionHandler(value = { EntityExistsException.class })
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorMessage handleEntityExistsException(EntityExistsException exception) {
         return new ErrorMessage(exception.getMessage());
     }
+
 
     @ExceptionHandler(value = { ElementAlreadyExistsException.class })
     @ResponseStatus(HttpStatus.CONFLICT)

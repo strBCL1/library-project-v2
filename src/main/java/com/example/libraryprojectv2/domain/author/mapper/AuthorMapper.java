@@ -3,7 +3,7 @@ package com.example.libraryprojectv2.domain.author.mapper;
 import com.example.libraryprojectv2.domain.author.dto.AuthorDto;
 import com.example.libraryprojectv2.domain.author.dto.AuthorWithOrcidDto;
 import com.example.libraryprojectv2.domain.author.model.Author;
-import com.example.libraryprojectv2.domain.book.dto.BookDataDto;
+import com.example.libraryprojectv2.domain.book.dto.BookDataWithIsbnDto;
 import com.example.libraryprojectv2.domain.book.mapper.BookMapper;
 import com.example.libraryprojectv2.domain.book.model.Book;
 import org.mapstruct.Mapper;
@@ -28,11 +28,12 @@ public interface AuthorMapper {
         final Set<Book> books = authorDto
                 .getBookDataDtos()
                 .stream()
-                .map(BookMapper.INSTANCE::bookDataDtoToBook)
+                .map(BookMapper.INSTANCE::bookDataWithIsbnDtoToBook)
                 .collect(Collectors.toSet());
 
         return new Author(authorDto.getOrcidId(), authorDto.getFirstName(), authorDto.getLastName(), books);
     }
+
 
     default Author authorOrcidDtoToAuthor(final AuthorWithOrcidDto authorWithOrcidDto) {
         if (isNull(authorWithOrcidDto)) {
@@ -44,6 +45,7 @@ public interface AuthorMapper {
         return new Author(authorWithOrcidDto.getOrcidId(), authorWithOrcidDto.getFirstName(), authorWithOrcidDto.getLastName(), books);
     }
 
+
     default AuthorWithOrcidDto authorToAuthorOrcidDto(final Author author) {
         if (isNull(author)) {
             return null;
@@ -52,17 +54,18 @@ public interface AuthorMapper {
         return new AuthorWithOrcidDto(author.getFirstName(), author.getLastName(), author.getOrcidId());
     }
 
+
     default AuthorDto authorToAuthorDto(final Author author) {
         if (isNull(author)) {
             return null;
         }
 
-        final Set<BookDataDto> bookTitleDtos = author
+        final Set<BookDataWithIsbnDto> bookDataWithIsbnDtos = author
                 .getBooks()
                 .stream()
-                .map(BookMapper.INSTANCE::bookToBookDataDto)
+                .map(BookMapper.INSTANCE::bookToBookDataWithIsbnDto)
                 .collect(Collectors.toSet());
 
-        return new AuthorDto(author.getOrcidId(), author.getFirstName(), author.getLastName(), bookTitleDtos);
+        return new AuthorDto(author.getOrcidId(), author.getFirstName(), author.getLastName(), bookDataWithIsbnDtos);
     }
 }

@@ -31,12 +31,14 @@ public class AuthorService {
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
 
+
     public AuthorService(AuthorRepository authorRepository, AuthorMapper authorMapper, BookRepository bookRepository, BookMapper bookMapper) {
         this.authorRepository = authorRepository;
         this.authorMapper = authorMapper;
         this.bookRepository = bookRepository;
         this.bookMapper = bookMapper;
     }
+
 
     @Transactional
     public AuthorDataDto createAuthor(final AuthorWithOrcidDto authorWithOrcidDto) {
@@ -56,12 +58,9 @@ public class AuthorService {
         return savedAuthorDataDto;
     }
 
+
     public AuthorDto getAuthorByOrcidId(final String orcidId) {
-        final Author author = authorRepository
-                .findById(orcidId)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        format("Author with ORCID code of {0} not found!", orcidId)
-                ));
+        final Author author = getAuthorOrThrowEntityNotFoundException(orcidId);
 
         final AuthorDto authorDto = authorMapper.authorToAuthorDto(author);
         return authorDto;
@@ -69,15 +68,11 @@ public class AuthorService {
 
     @Transactional
     public AuthorDto updateBooksOfAuthor(final BookIsbnDtoList bookIsbnDtoList, final String orcidId) {
-        final Author author = authorRepository
-                .findById(orcidId)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        format("Author with ORCID code of {0} not found!", orcidId)
-                ));
+        final Author author = getAuthorOrThrowEntityNotFoundException(orcidId);
 
         final Set<Book> authorBooks = author.getBooks();
         final Set<Book> newBooks = bookIsbnDtoList
-                .bookDataDtos()
+                .bookIsbnDtos()
                 .stream()
                 .map(bookMapper::bookIsbnDtoToBook)
                 .collect(Collectors.toSet());
@@ -106,6 +101,7 @@ public class AuthorService {
         return authorDto;
     }
 
+
     public AuthorDtoList getAuthors() {
         final List<Author> authors = authorRepository.findAll();
 
@@ -119,23 +115,36 @@ public class AuthorService {
         return authorDtoList;
     }
 
+
     @Transactional
     public void deleteAuthor(final String orcidId) {
+        if (!authorRepository.existsById(orcidId)) {
+            throw new EntityNotFoundException(
+                    format("Author with ORCID code of {0} not found!", orcidId)
+            );
+        }
+
         authorRepository.deleteById(orcidId);
     }
 
+
     @Transactional
     public AuthorDataDto updateAuthorData(final AuthorDataDto authorDataDto, final String orcidId) {
-        final Author author = authorRepository
-                .findById(orcidId)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        format("Author with ORCID code of {0} not found!", orcidId)
-                ));
+        final Author author = getAuthorOrThrowEntityNotFoundException(orcidId);
 
         author.updateAuthorData(authorDataDto.getFirstName(), authorDataDto.getLastName());
 
         final Author savedAuthor = authorRepository.save(author);
         final AuthorDataDto savedAuthorDataDto = authorMapper.authorToAuthorOrcidDto(savedAuthor);
         return savedAuthorDataDto;
+    }
+
+
+    private Author getAuthorOrThrowEntityNotFoundException(final String orcidId) {
+        return authorRepository
+                .findById(orcidId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        format("Author with ORCID code of {0} not found!", orcidId)
+                ));
     }
 }

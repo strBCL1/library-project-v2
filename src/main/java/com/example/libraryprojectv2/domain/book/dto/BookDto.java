@@ -7,13 +7,13 @@ import javax.validation.Valid;
 import java.util.Set;
 
 @Getter
-public class BookDto extends BookDataDto {
+public class BookDto extends BookDataWithIsbnDto {
 
     @Valid
     private final Set<AuthorDataDto> authorDataDtos;
 
-    public BookDto(String isbnId, String title, Set<AuthorDataDto> authorDataDtos) {
-        super(isbnId, title);
+    public BookDto(String title, String isbnId, Set<AuthorDataDto> authorDataDtos) {
+        super(title, isbnId);
         this.authorDataDtos = authorDataDtos;
     }
 }
