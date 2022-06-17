@@ -4,6 +4,7 @@ import com.example.libraryprojectv2.domain.author.dao.AuthorRepository;
 import com.example.libraryprojectv2.domain.author.dto.AuthorDataDto;
 import com.example.libraryprojectv2.domain.author.dto.AuthorDto;
 import com.example.libraryprojectv2.domain.author.dto.AuthorDtoList;
+import com.example.libraryprojectv2.domain.author.dto.AuthorWithOrcidDto;
 import com.example.libraryprojectv2.domain.author.mapper.AuthorMapper;
 import com.example.libraryprojectv2.domain.author.model.Author;
 import com.example.libraryprojectv2.domain.book.dao.BookRepository;
@@ -38,8 +39,8 @@ public class AuthorService {
     }
 
     @Transactional
-    public AuthorDataDto createAuthor(final AuthorDataDto authorDataDto) {
-        final Author newAuthor = authorMapper.authorDataDtoToAuthor(authorDataDto);
+    public AuthorDataDto createAuthor(final AuthorWithOrcidDto authorWithOrcidDto) {
+        final Author newAuthor = authorMapper.authorOrcidDtoToAuthor(authorWithOrcidDto);
         final String newAuthorOrcidId = newAuthor.getOrcidId();
 
         final Optional<Author> optionalAuthor = authorRepository.findById(newAuthorOrcidId);
@@ -51,7 +52,7 @@ public class AuthorService {
         }
 
         final Author savedAuthor = authorRepository.save(newAuthor);
-        final AuthorDataDto savedAuthorDataDto = authorMapper.authorToAuthorDataDto(savedAuthor);
+        final AuthorDataDto savedAuthorDataDto = authorMapper.authorToAuthorOrcidDto(savedAuthor);
         return savedAuthorDataDto;
     }
 
@@ -78,7 +79,7 @@ public class AuthorService {
         final Set<Book> newBooks = bookIsbnDtoList
                 .bookDataDtos()
                 .stream()
-                .map(bookMapper::BookIsbnDtoToBook)
+                .map(bookMapper::bookIsbnDtoToBook)
                 .collect(Collectors.toSet());
 
 //        Convert list of all books to set to minimize search time complexity
@@ -111,10 +112,30 @@ public class AuthorService {
         final List<AuthorDto> authorDtos = authors
                 .stream()
                 .map(authorMapper::authorToAuthorDto)
-                .collect(Collectors.toList());
+                .toList();
 
         final AuthorDtoList authorDtoList = new AuthorDtoList(authorDtos);
 
         return authorDtoList;
+    }
+
+    @Transactional
+    public void deleteAuthor(final String orcidId) {
+        authorRepository.deleteById(orcidId);
+    }
+
+    @Transactional
+    public AuthorDataDto updateAuthorData(final AuthorDataDto authorDataDto, final String orcidId) {
+        final Author author = authorRepository
+                .findById(orcidId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        format("Author with ORCID code of {0} not found!", orcidId)
+                ));
+
+        author.updateAuthorData(authorDataDto.getFirstName(), authorDataDto.getLastName());
+
+        final Author savedAuthor = authorRepository.save(author);
+        final AuthorDataDto savedAuthorDataDto = authorMapper.authorToAuthorOrcidDto(savedAuthor);
+        return savedAuthorDataDto;
     }
 }

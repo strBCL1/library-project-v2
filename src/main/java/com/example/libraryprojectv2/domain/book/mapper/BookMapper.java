@@ -35,7 +35,7 @@ public interface BookMapper {
         return new BookDataDto(book.getIsbnId(), book.getTitle());
     }
 
-    default Book BookIsbnDtoToBook(final BookIsbnDto bookIsbnDto) {
+    default Book bookIsbnDtoToBook(final BookIsbnDto bookIsbnDto) {
         if (isNull(bookIsbnDto)) {
             return null;
         }

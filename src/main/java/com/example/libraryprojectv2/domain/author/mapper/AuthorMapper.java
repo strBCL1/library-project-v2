@@ -1,7 +1,7 @@
 package com.example.libraryprojectv2.domain.author.mapper;
 
-import com.example.libraryprojectv2.domain.author.dto.AuthorDataDto;
 import com.example.libraryprojectv2.domain.author.dto.AuthorDto;
+import com.example.libraryprojectv2.domain.author.dto.AuthorWithOrcidDto;
 import com.example.libraryprojectv2.domain.author.model.Author;
 import com.example.libraryprojectv2.domain.book.dto.BookDataDto;
 import com.example.libraryprojectv2.domain.book.mapper.BookMapper;
@@ -34,22 +34,22 @@ public interface AuthorMapper {
         return new Author(authorDto.getOrcidId(), authorDto.getFirstName(), authorDto.getLastName(), books);
     }
 
-    default Author authorDataDtoToAuthor(final AuthorDataDto authorDataDto) {
-        if (isNull(authorDataDto)) {
+    default Author authorOrcidDtoToAuthor(final AuthorWithOrcidDto authorWithOrcidDto) {
+        if (isNull(authorWithOrcidDto)) {
             return null;
         }
 
         final Set<Book> books = new HashSet<>();
 
-        return new Author(authorDataDto.getOrcidId(), authorDataDto.getFirstName(), authorDataDto.getLastName(), books);
+        return new Author(authorWithOrcidDto.getOrcidId(), authorWithOrcidDto.getFirstName(), authorWithOrcidDto.getLastName(), books);
     }
 
-    default AuthorDataDto authorToAuthorDataDto(final Author author) {
+    default AuthorWithOrcidDto authorToAuthorOrcidDto(final Author author) {
         if (isNull(author)) {
             return null;
         }
 
-        return new AuthorDataDto(author.getOrcidId(), author.getFirstName(), author.getLastName());
+        return new AuthorWithOrcidDto(author.getFirstName(), author.getLastName(), author.getOrcidId());
     }
 
     default AuthorDto authorToAuthorDto(final Author author) {

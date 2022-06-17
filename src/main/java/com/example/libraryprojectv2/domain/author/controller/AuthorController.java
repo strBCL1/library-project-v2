@@ -3,6 +3,7 @@ package com.example.libraryprojectv2.domain.author.controller;
 import com.example.libraryprojectv2.domain.author.dto.AuthorDataDto;
 import com.example.libraryprojectv2.domain.author.dto.AuthorDto;
 import com.example.libraryprojectv2.domain.author.dto.AuthorDtoList;
+import com.example.libraryprojectv2.domain.author.dto.AuthorWithOrcidDto;
 import com.example.libraryprojectv2.domain.author.service.AuthorService;
 import com.example.libraryprojectv2.domain.book.dto.BookIsbnDtoList;
 import org.springframework.http.HttpStatus;
@@ -26,8 +27,8 @@ public class AuthorController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public AuthorDataDto createAuthor(@RequestBody @NotNull @Valid final AuthorDataDto authorDataDto) {
-        final AuthorDataDto savedAuthorDataDto = authorService.createAuthor(authorDataDto);
+    public AuthorDataDto createAuthor(@RequestBody @NotNull @Valid final AuthorWithOrcidDto authorWithOrcidDto) {
+        final AuthorDataDto savedAuthorDataDto = authorService.createAuthor(authorWithOrcidDto);
         return savedAuthorDataDto;
     }
 
@@ -51,5 +52,19 @@ public class AuthorController {
     public AuthorDtoList getAuthors() {
         final AuthorDtoList authorDtoList = authorService.getAuthors();
         return authorDtoList;
+    }
+
+    @DeleteMapping("/{orcid-id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAuthor(@PathVariable("orcid-id") @Pattern(regexp = "\\d{16}", message = "Author's ORCID code must only have digits of length of 16!") final String orcidId) {
+        authorService.deleteAuthor(orcidId);
+    }
+
+    @PutMapping("/{orcid-id}")
+    @ResponseStatus(HttpStatus.OK)
+    public AuthorDataDto updateAuthorData(@RequestBody @NotNull @Valid final AuthorDataDto authorDataDto,
+                                      @PathVariable("orcid-id") @Pattern(regexp = "\\d{16}", message = "Author's ORCID code must only have digits of length of 16!") final String orcidId) {
+        final AuthorDataDto updatedAuthorDto = authorService.updateAuthorData(authorDataDto, orcidId);
+        return updatedAuthorDto;
     }
 }

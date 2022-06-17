@@ -45,6 +45,11 @@ public class Author {
         book.getAuthors().add(this);
     }
 
+    public void updateAuthorData(final String firstName, final String lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
