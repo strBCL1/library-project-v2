@@ -1,12 +1,17 @@
 package com.example.libraryprojectv2.domain.book.service;
 
 import com.example.libraryprojectv2.domain.book.dao.BookRepository;
+import com.example.libraryprojectv2.domain.book.dto.BookDataWithIsbnDto;
 import com.example.libraryprojectv2.domain.book.dto.BookDto;
 import com.example.libraryprojectv2.domain.book.mapper.BookMapper;
 import com.example.libraryprojectv2.domain.book.model.Book;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
+
+import java.util.Optional;
 
 import static java.text.MessageFormat.format;
 
@@ -27,6 +32,25 @@ public class BookService {
         final BookDto bookDto = bookMapper.bookToBookDto(book);
 
         return bookDto;
+    }
+
+    
+    @Transactional
+    public BookDataWithIsbnDto createBook(final BookDataWithIsbnDto bookDataWithIsbnDto) {
+        final Book newBook = bookMapper.bookDataWithIsbnDtoToBook(bookDataWithIsbnDto);
+        final String newBookIsbnId = newBook.getIsbnId();
+
+        final Optional<Book> bookOptional = bookRepository.findById(newBookIsbnId);
+
+        if (bookOptional.isPresent()) {
+            throw new EntityExistsException(
+                    format("Book with ISBN code of {0} already exists!", newBookIsbnId)
+            );
+        }
+
+        final Book savedBook = bookRepository.save(newBook);
+        final BookDataWithIsbnDto savedBookDataWithIsbnDto = bookMapper.bookToBookDataWithIsbnDto(savedBook);
+        return savedBookDataWithIsbnDto;
     }
 
 
