@@ -3,6 +3,7 @@ package com.example.libraryprojectv2.domain.book.service;
 import com.example.libraryprojectv2.domain.book.dao.BookRepository;
 import com.example.libraryprojectv2.domain.book.dto.BookDataWithIsbnDto;
 import com.example.libraryprojectv2.domain.book.dto.BookDto;
+import com.example.libraryprojectv2.domain.book.dto.BookDtoList;
 import com.example.libraryprojectv2.domain.book.mapper.BookMapper;
 import com.example.libraryprojectv2.domain.book.model.Book;
 import org.springframework.stereotype.Service;
@@ -11,7 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.text.MessageFormat.format;
 
@@ -27,6 +30,20 @@ public class BookService {
     }
 
 
+    public BookDtoList getAllBooks() {
+        final List<Book> books = bookRepository.findAll();
+
+        final List<BookDto> bookDtos = books
+                .stream()
+                .map(bookMapper::bookToBookDto)
+                .toList();
+
+        final BookDtoList bookDtoList = new BookDtoList(bookDtos);
+
+        return bookDtoList;
+    }
+
+
     public BookDto getBookByIsbnId(final String isbnId) {
         final Book book = getBookOrThrowEntityNotFoundException(isbnId);
         final BookDto bookDto = bookMapper.bookToBookDto(book);
@@ -34,7 +51,7 @@ public class BookService {
         return bookDto;
     }
 
-    
+
     @Transactional
     public BookDataWithIsbnDto createBook(final BookDataWithIsbnDto bookDataWithIsbnDto) {
         final Book newBook = bookMapper.bookDataWithIsbnDtoToBook(bookDataWithIsbnDto);

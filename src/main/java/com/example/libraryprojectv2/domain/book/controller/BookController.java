@@ -2,6 +2,7 @@ package com.example.libraryprojectv2.domain.book.controller;
 
 import com.example.libraryprojectv2.domain.book.dto.BookDataWithIsbnDto;
 import com.example.libraryprojectv2.domain.book.dto.BookDto;
+import com.example.libraryprojectv2.domain.book.dto.BookDtoList;
 import com.example.libraryprojectv2.domain.book.service.BookService;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -20,6 +21,14 @@ public class BookController {
 
     public BookController(BookService bookService) {
         this.bookService = bookService;
+    }
+
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public BookDtoList getAllBooks() {
+        final BookDtoList bookDtoList = bookService.getAllBooks();
+        return bookDtoList;
     }
 
 
