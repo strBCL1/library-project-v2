@@ -1,5 +1,6 @@
 package com.example.libraryprojectv2.domain.book.controller;
 
+import com.example.libraryprojectv2.domain.book.dto.BookDataDto;
 import com.example.libraryprojectv2.domain.book.dto.BookDataWithIsbnDto;
 import com.example.libraryprojectv2.domain.book.dto.BookDto;
 import com.example.libraryprojectv2.domain.book.dto.BookDtoList;
@@ -45,5 +46,13 @@ public class BookController {
     public BookDataWithIsbnDto createBook(@RequestBody @NotNull @Valid final BookDataWithIsbnDto bookDataWithIsbnDto) {
         final BookDataWithIsbnDto createdBook = bookService.createBook(bookDataWithIsbnDto);
         return createdBook;
+    }
+
+    @PutMapping("/{isbn-id}")
+    @ResponseStatus(HttpStatus.OK)
+    public BookDataDto updateBookData(@RequestBody @NotNull @Valid final BookDataDto bookDataDto,
+                                      @PathVariable("isbn-id") @Pattern(regexp = "\\d{13}", message = "Book's ISBN code must only have digits of length of 13!") final String isbnId) {
+        final BookDataDto updatedBookDataDto = bookService.updateBookData(bookDataDto, isbnId);
+        return updatedBookDataDto;
     }
 }

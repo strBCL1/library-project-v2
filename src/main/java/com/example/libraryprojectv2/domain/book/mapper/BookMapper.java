@@ -3,6 +3,7 @@ package com.example.libraryprojectv2.domain.book.mapper;
 import com.example.libraryprojectv2.domain.author.dto.AuthorDataDto;
 import com.example.libraryprojectv2.domain.author.mapper.AuthorMapper;
 import com.example.libraryprojectv2.domain.author.model.Author;
+import com.example.libraryprojectv2.domain.book.dto.BookDataDto;
 import com.example.libraryprojectv2.domain.book.dto.BookDataWithIsbnDto;
 import com.example.libraryprojectv2.domain.book.dto.BookDto;
 import com.example.libraryprojectv2.domain.book.dto.BookIsbnDto;
@@ -64,5 +65,13 @@ public interface BookMapper {
                 .collect(Collectors.toSet());
 
         return new BookDto(book.getTitle(), book.getIsbnId(), authorDataDtos);
+    }
+
+    default BookDataDto bookToBookDataDto(final Book book) {
+        if (isNull(book)) {
+            return null;
+        }
+
+        return new BookDataDto(book.getTitle());
     }
 }

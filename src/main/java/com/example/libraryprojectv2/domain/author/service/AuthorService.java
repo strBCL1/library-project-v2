@@ -60,7 +60,7 @@ public class AuthorService {
 
 
     public AuthorDto getAuthorByOrcidId(final String orcidId) {
-        final Author author = getAuthorOrThrowEntityNotFoundException(orcidId);
+        final Author author = getAuthorByOrcidIdOrThrowEntityNotFoundException(orcidId);
 
         final AuthorDto authorDto = authorMapper.authorToAuthorDto(author);
         return authorDto;
@@ -68,7 +68,7 @@ public class AuthorService {
 
     @Transactional
     public AuthorDto updateBooksOfAuthor(final BookIsbnDtoList bookIsbnDtoList, final String orcidId) {
-        final Author author = getAuthorOrThrowEntityNotFoundException(orcidId);
+        final Author author = getAuthorByOrcidIdOrThrowEntityNotFoundException(orcidId);
 
         final Set<Book> authorBooks = author.getBooks();
         final Set<Book> newBooks = bookIsbnDtoList
@@ -130,7 +130,7 @@ public class AuthorService {
 
     @Transactional
     public AuthorDataDto updateAuthorData(final AuthorDataDto authorDataDto, final String orcidId) {
-        final Author author = getAuthorOrThrowEntityNotFoundException(orcidId);
+        final Author author = getAuthorByOrcidIdOrThrowEntityNotFoundException(orcidId);
 
         author.updateAuthorData(authorDataDto.getFirstName(), authorDataDto.getLastName());
 
@@ -140,7 +140,7 @@ public class AuthorService {
     }
 
 
-    private Author getAuthorOrThrowEntityNotFoundException(final String orcidId) {
+    private Author getAuthorByOrcidIdOrThrowEntityNotFoundException(final String orcidId) {
         return authorRepository
                 .findById(orcidId)
                 .orElseThrow(() -> new EntityNotFoundException(

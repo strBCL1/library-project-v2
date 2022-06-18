@@ -19,7 +19,7 @@ import java.util.Set;
 public class Book {
 
     @Id
-    @Column(name = "isbn_id", length = 13)
+    @Column(name = "isbn_id", length = 13, updatable = false)
     private String isbnId;
 
     @Column(name = "title")
@@ -27,6 +27,10 @@ public class Book {
 
     @ManyToMany(mappedBy = "books", fetch = FetchType.LAZY)
     private Set<Author> authors = new HashSet<>();
+
+    public void updateBookData(final String title) {
+        this.title = title;
+    }
 
     @Override
     public boolean equals(Object o) {

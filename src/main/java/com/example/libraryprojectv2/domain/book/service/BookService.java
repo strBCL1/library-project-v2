@@ -1,6 +1,7 @@
 package com.example.libraryprojectv2.domain.book.service;
 
 import com.example.libraryprojectv2.domain.book.dao.BookRepository;
+import com.example.libraryprojectv2.domain.book.dto.BookDataDto;
 import com.example.libraryprojectv2.domain.book.dto.BookDataWithIsbnDto;
 import com.example.libraryprojectv2.domain.book.dto.BookDto;
 import com.example.libraryprojectv2.domain.book.dto.BookDtoList;
@@ -14,7 +15,6 @@ import javax.persistence.EntityNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static java.text.MessageFormat.format;
 
@@ -45,7 +45,7 @@ public class BookService {
 
 
     public BookDto getBookByIsbnId(final String isbnId) {
-        final Book book = getBookOrThrowEntityNotFoundException(isbnId);
+        final Book book = getBookByIsbnIdOrThrowEntityNotFoundException(isbnId);
         final BookDto bookDto = bookMapper.bookToBookDto(book);
 
         return bookDto;
@@ -71,7 +71,19 @@ public class BookService {
     }
 
 
-    private Book getBookOrThrowEntityNotFoundException(final String isbnId) {
+    @Transactional
+    public BookDataDto updateBookData(final BookDataDto bookDataDto, final String isbnId) {
+        final Book book = getBookByIsbnIdOrThrowEntityNotFoundException(isbnId);
+
+        book.updateBookData(bookDataDto.getTitle());
+
+        final Book savedBook = bookRepository.save(book);
+        final BookDataDto savedBookDataDto = bookMapper.bookToBookDataDto(book);
+        return savedBookDataDto;
+    }
+
+
+    private Book getBookByIsbnIdOrThrowEntityNotFoundException(final String isbnId) {
         return bookRepository
                 .findById(isbnId)
                 .orElseThrow(() -> new EntityNotFoundException(

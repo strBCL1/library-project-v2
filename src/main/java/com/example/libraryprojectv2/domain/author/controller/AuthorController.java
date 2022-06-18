@@ -69,7 +69,7 @@ public class AuthorController {
     @PutMapping("/{orcid-id}")
     @ResponseStatus(HttpStatus.OK)
     public AuthorDataDto updateAuthorData(@RequestBody @NotNull @Valid final AuthorDataDto authorDataDto,
-                                      @PathVariable("orcid-id") @Pattern(regexp = "\\d{16}", message = "Author's ORCID code must only have digits of length of 16!") final String orcidId) {
+                                          @PathVariable("orcid-id") @Pattern(regexp = "\\d{16}", message = "Author's ORCID code must only have digits of length of 16!") final String orcidId) {
         final AuthorDataDto updatedAuthorDto = authorService.updateAuthorData(authorDataDto, orcidId);
         return updatedAuthorDto;
     }
