@@ -1,5 +1,6 @@
 package com.example.libraryprojectv2.domain.author.mapper;
 
+import com.example.libraryprojectv2.domain.author.dto.AuthorDataDto;
 import com.example.libraryprojectv2.domain.author.dto.AuthorDto;
 import com.example.libraryprojectv2.domain.author.dto.AuthorWithOrcidDto;
 import com.example.libraryprojectv2.domain.author.model.Author;
@@ -67,5 +68,14 @@ public interface AuthorMapper {
                 .collect(Collectors.toSet());
 
         return new AuthorDto(author.getOrcidId(), author.getFirstName(), author.getLastName(), bookDataWithIsbnDtos);
+    }
+
+
+    default AuthorDataDto authorToAuthorDataDto(final Author author) {
+        if (isNull(author)) {
+            return null;
+        }
+
+        return new AuthorDataDto(author.getFirstName(), author.getLastName());
     }
 }
