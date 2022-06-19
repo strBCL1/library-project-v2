@@ -55,4 +55,10 @@ public class BookController {
         final BookDataDto updatedBookDataDto = bookService.updateBookData(bookDataDto, isbnId);
         return updatedBookDataDto;
     }
+
+    @DeleteMapping("/{isbn-id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteBook(@PathVariable("isbn-id") @Pattern(regexp = "\\d{13}", message = "Book's ISBN code must only have digits of length of 13!") final String isbnId) {
+        bookService.deleteBook(isbnId);
+    }
 }
