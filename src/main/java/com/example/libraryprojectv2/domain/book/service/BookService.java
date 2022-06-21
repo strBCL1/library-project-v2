@@ -4,11 +4,10 @@ import com.example.libraryprojectv2.domain.author.dao.AuthorRepository;
 import com.example.libraryprojectv2.domain.author.model.Author;
 import com.example.libraryprojectv2.domain.book.dao.BookRepository;
 import com.example.libraryprojectv2.domain.book.dto.BookDataDto;
-import com.example.libraryprojectv2.domain.book.dto.BookDataWithIsbnDto;
 import com.example.libraryprojectv2.domain.book.dto.BookDto;
-import com.example.libraryprojectv2.domain.book.dto.BookDtoList;
-import com.example.libraryprojectv2.domain.book.mapper.BookMapper;
+import com.example.libraryprojectv2.domain.book.dto.BookTitleDto;
 import com.example.libraryprojectv2.domain.book.model.Book;
+import com.example.libraryprojectv2.domain.mapper.Mapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,40 +21,38 @@ import static java.text.MessageFormat.format;
 @Service
 public class BookService {
     private final BookRepository bookRepository;
-    private final BookMapper bookMapper;
+    private final Mapper mapper;
     private final AuthorRepository authorRepository;
 
-    public BookService(BookRepository bookRepository, BookMapper bookMapper, AuthorRepository authorRepository) {
+    public BookService(BookRepository bookRepository, Mapper mapper, AuthorRepository authorRepository) {
         this.bookRepository = bookRepository;
-        this.bookMapper = bookMapper;
+        this.mapper = mapper;
         this.authorRepository = authorRepository;
     }
 
-    public BookDtoList getAllBooks() {
+    public List<BookDto> getAllBooks() {
         final List<Book> books = bookRepository.findAll();
 
         final List<BookDto> bookDtos = books
                 .stream()
-                .map(bookMapper::bookToBookDto)
+                .map(book -> mapper.bookToBookDto(book))
                 .toList();
 
-        final BookDtoList bookDtoList = new BookDtoList(bookDtos);
-
-        return bookDtoList;
+        return bookDtos;
     }
 
 
     public BookDto getBookByIsbnId(final String isbnId) {
         final Book book = getBookByIsbnIdOrThrowEntityNotFoundException(isbnId);
-        final BookDto bookDto = bookMapper.bookToBookDto(book);
+        final BookDto bookDto = mapper.bookToBookDto(book);
 
         return bookDto;
     }
 
 
     @Transactional
-    public BookDataWithIsbnDto createBook(final BookDataWithIsbnDto bookDataWithIsbnDto) {
-        final Book newBook = bookMapper.bookDataWithIsbnDtoToBook(bookDataWithIsbnDto);
+    public BookDataDto createBook(final BookDataDto bookDataDto) {
+        final Book newBook = mapper.bookDataDtoToBook(bookDataDto);
         final String newBookIsbnId = newBook.getIsbnId();
 
         final Optional<Book> bookOptional = bookRepository.findById(newBookIsbnId);
@@ -67,20 +64,20 @@ public class BookService {
         }
 
         final Book savedBook = bookRepository.save(newBook);
-        final BookDataWithIsbnDto savedBookDataWithIsbnDto = bookMapper.bookToBookDataWithIsbnDto(savedBook);
-        return savedBookDataWithIsbnDto;
+        final BookDataDto savedBookDataDto = mapper.bookToBookDataDto(savedBook);
+        return savedBookDataDto;
     }
 
 
     @Transactional
-    public BookDataDto updateBookData(final BookDataDto bookDataDto, final String isbnId) {
+    public BookTitleDto updateBookData(final BookTitleDto bookTitleDto, final String isbnId) {
         final Book book = getBookByIsbnIdOrThrowEntityNotFoundException(isbnId);
 
-        book.updateBookData(bookDataDto.getTitle());
+        book.updateBookData(bookTitleDto.title());
 
         final Book savedBook = bookRepository.save(book);
-        final BookDataDto savedBookDataDto = bookMapper.bookToBookDataDto(savedBook);
-        return savedBookDataDto;
+        final BookTitleDto updatedBookTitleDto = mapper.bookToBookTitleDto(savedBook);
+        return updatedBookTitleDto;
     }
 
 

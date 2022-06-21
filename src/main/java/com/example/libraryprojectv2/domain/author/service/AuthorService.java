@@ -3,14 +3,12 @@ package com.example.libraryprojectv2.domain.author.service;
 import com.example.libraryprojectv2.domain.author.dao.AuthorRepository;
 import com.example.libraryprojectv2.domain.author.dto.AuthorDataDto;
 import com.example.libraryprojectv2.domain.author.dto.AuthorDto;
-import com.example.libraryprojectv2.domain.author.dto.AuthorDtoList;
-import com.example.libraryprojectv2.domain.author.dto.AuthorWithOrcidDto;
-import com.example.libraryprojectv2.domain.author.mapper.AuthorMapper;
+import com.example.libraryprojectv2.domain.author.dto.AuthorIdDto;
 import com.example.libraryprojectv2.domain.author.model.Author;
 import com.example.libraryprojectv2.domain.book.dao.BookRepository;
-import com.example.libraryprojectv2.domain.book.dto.BookIsbnDtoList;
-import com.example.libraryprojectv2.domain.book.mapper.BookMapper;
+import com.example.libraryprojectv2.domain.book.dto.BookIdDto;
 import com.example.libraryprojectv2.domain.book.model.Book;
+import com.example.libraryprojectv2.domain.mapper.Mapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,22 +25,19 @@ import static java.text.MessageFormat.format;
 @Service
 public class AuthorService {
     private final AuthorRepository authorRepository;
-    private final AuthorMapper authorMapper;
     private final BookRepository bookRepository;
-    private final BookMapper bookMapper;
+    private final Mapper mapper;
 
 
-    public AuthorService(AuthorRepository authorRepository, AuthorMapper authorMapper, BookRepository bookRepository, BookMapper bookMapper) {
+    public AuthorService(AuthorRepository authorRepository, BookRepository bookRepository, Mapper mapper) {
         this.authorRepository = authorRepository;
-        this.authorMapper = authorMapper;
         this.bookRepository = bookRepository;
-        this.bookMapper = bookMapper;
+        this.mapper = mapper;
     }
 
-
     @Transactional
-    public AuthorDataDto createAuthor(final AuthorWithOrcidDto authorWithOrcidDto) {
-        final Author newAuthor = authorMapper.authorOrcidDtoToAuthor(authorWithOrcidDto);
+    public AuthorIdDto createAuthor(final AuthorIdDto authorIdDto) {
+        final Author newAuthor = mapper.authorIdDtoToAuthor(authorIdDto);
         final String newAuthorOrcidId = newAuthor.getOrcidId();
 
         final Optional<Author> optionalAuthor = authorRepository.findById(newAuthorOrcidId);
@@ -54,27 +49,26 @@ public class AuthorService {
         }
 
         final Author savedAuthor = authorRepository.save(newAuthor);
-        final AuthorDataDto savedAuthorDataDto = authorMapper.authorToAuthorOrcidDto(savedAuthor);
-        return savedAuthorDataDto;
+        final AuthorIdDto savedAuthorIdDto = mapper.authorToAuthorIdDto(savedAuthor);
+        return savedAuthorIdDto;
     }
 
 
     public AuthorDto getAuthorByOrcidId(final String orcidId) {
         final Author author = getAuthorByOrcidIdOrThrowEntityNotFoundException(orcidId);
 
-        final AuthorDto authorDto = authorMapper.authorToAuthorDto(author);
+        final AuthorDto authorDto = mapper.authorToAuthorDto(author);
         return authorDto;
     }
 
     @Transactional
-    public AuthorDto updateBooksOfAuthor(final BookIsbnDtoList bookIsbnDtoList, final String orcidId) {
+    public AuthorDto updateBooksOfAuthor(final List<BookIdDto> bookIsbnDtos, final String orcidId) {
         final Author author = getAuthorByOrcidIdOrThrowEntityNotFoundException(orcidId);
 
         final Set<Book> authorBooks = author.getBooks();
-        final Set<Book> newBooks = bookIsbnDtoList
-                .bookIsbnDtos()
+        final Set<Book> newBooks = bookIsbnDtos
                 .stream()
-                .map(bookMapper::bookIsbnDtoToBook)
+                .map(mapper::bookIdDtoToBook)
                 .collect(Collectors.toSet());
 
 //        Convert list of all books to set to minimize search time complexity
@@ -97,22 +91,20 @@ public class AuthorService {
         });
 
         final Author updatedAuthor = authorRepository.save(author);
-        final AuthorDto authorDto = authorMapper.authorToAuthorDto(updatedAuthor);
+        final AuthorDto authorDto = mapper.authorToAuthorDto(updatedAuthor);
         return authorDto;
     }
 
 
-    public AuthorDtoList getAuthors() {
+    public List<AuthorDto> getAuthors() {
         final List<Author> authors = authorRepository.findAll();
 
         final List<AuthorDto> authorDtos = authors
                 .stream()
-                .map(authorMapper::authorToAuthorDto)
+                .map(mapper::authorToAuthorDto)
                 .toList();
 
-        final AuthorDtoList authorDtoList = new AuthorDtoList(authorDtos);
-
-        return authorDtoList;
+        return authorDtos;
     }
 
 
@@ -135,7 +127,7 @@ public class AuthorService {
         author.updateAuthorData(authorDataDto.getFirstName(), authorDataDto.getLastName());
 
         final Author savedAuthor = authorRepository.save(author);
-        final AuthorDataDto savedAuthorDataDto = authorMapper.authorToAuthorOrcidDto(savedAuthor);
+        final AuthorDataDto savedAuthorDataDto = mapper.authorToAuthorIdDto(savedAuthor);
         return savedAuthorDataDto;
     }
 

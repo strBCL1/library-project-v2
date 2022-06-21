@@ -29,7 +29,7 @@ public class RestExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorMessage handleConstraintViolationException(ConstraintViolationException exception) {
         final String cause = exception.getMessage();
-        return new ErrorMessage(cause.substring(cause.indexOf(": ") + 2));
+        return new ErrorMessage(cause.substring(cause.indexOf(": ") + 2, cause.indexOf("!") + 1));
     }
 
 
