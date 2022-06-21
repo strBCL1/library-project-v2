@@ -15,7 +15,7 @@ import org.mapstruct.factory.Mappers;
 import java.util.Set;
 
 @org.mapstruct.Mapper(componentModel = "spring")
-public interface Mapper {
+public interface Mapper { // All mapping methods in one class to avoid cycling
 
 
     Mapper INSTANCE = Mappers.getMapper(Mapper.class);

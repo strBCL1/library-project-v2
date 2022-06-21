@@ -30,6 +30,20 @@ public class RestExceptionHandler {
     public ErrorMessage handleConstraintViolationException(ConstraintViolationException exception) {
         final String cause = exception.getMessage();
         return new ErrorMessage(cause.substring(cause.indexOf(": ") + 2, cause.indexOf("!") + 1));
+
+//        Returns user's rejected values
+//        final List<String> invalidValues = exception
+//                .getConstraintViolations()
+//                .stream()
+//                .map(constraintViolation -> constraintViolation.getInvalidValue().toString())
+//                .toList();
+//
+//        final String cause = exception.getMessage();
+//        final String message = cause.substring(cause.indexOf(": ") + 2, cause.indexOf("!") + 1);
+//
+//        return new ErrorMessage(
+//                format("Message: ''{0}'', rejected value(s): ''{1}''", message, invalidValues)
+//        );
     }
 
 
@@ -39,7 +53,7 @@ public class RestExceptionHandler {
         final String message = exception.getFieldError().getDefaultMessage();
         final String rejectedValue = exception.getFieldError().getRejectedValue().toString();
         return new ErrorMessage(
-                format("Message: ''{0}'', submitted value: ''{1}''", message, rejectedValue)
+                format("Message: ''{0}'', rejected value: ''{1}''", message, rejectedValue)
         );
     }
 
