@@ -99,6 +99,7 @@ public class BookService {
         bookRepository.deleteById(isbnId);
     }
 
+
     private Book getBookByIsbnIdOrThrowEntityNotFoundException(final String isbnId) {
         return bookRepository
                 .findById(isbnId)

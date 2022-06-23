@@ -1,6 +1,7 @@
 package com.example.libraryprojectv2.domain.book.model;
 
 import com.example.libraryprojectv2.domain.author.model.Author;
+import com.example.libraryprojectv2.domain.publisher.model.Publisher;
 import lombok.*;
 
 import javax.persistence.*;
@@ -27,6 +28,9 @@ public class Book {
 
     @ManyToMany(mappedBy = "books", fetch = FetchType.LAZY)
     private Set<Author> authors = new HashSet<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Publisher publisher;
 
     public void updateBookData(final String title) {
         this.title = title;

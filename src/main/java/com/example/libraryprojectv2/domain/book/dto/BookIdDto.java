@@ -1,6 +1,5 @@
 package com.example.libraryprojectv2.domain.book.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 
 import javax.validation.constraints.Pattern;
