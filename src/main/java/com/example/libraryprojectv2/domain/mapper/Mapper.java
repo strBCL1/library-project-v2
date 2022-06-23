@@ -9,6 +9,8 @@ import com.example.libraryprojectv2.domain.book.dto.BookDto;
 import com.example.libraryprojectv2.domain.book.dto.BookIdDto;
 import com.example.libraryprojectv2.domain.book.dto.BookTitleDto;
 import com.example.libraryprojectv2.domain.book.model.Book;
+import com.example.libraryprojectv2.domain.publisher.dto.PublisherDto;
+import com.example.libraryprojectv2.domain.publisher.model.Publisher;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
@@ -77,4 +79,14 @@ public interface Mapper { // All mapping methods in one class to avoid cycling
     @Named("bookSetToBookDataDtoSet")
     @IterableMapping(qualifiedByName = "bookToBookDataDto")
     Set<BookDataDto> bookSetToBookDataDtoSet(Set<Book> books);
+
+
+//        ========================================== 'Publisher' entity ===============================================
+
+
+    Publisher publisherDtoToPublisher(PublisherDto publisherDto); // publisherDto -> publisher
+
+
+    @InheritInverseConfiguration
+    PublisherDto publisherToPublisherDto(Publisher publisher); // publisher -> publisherIdDto
 }
