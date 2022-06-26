@@ -10,10 +10,10 @@ import java.util.Set;
 public class BookDto extends BookDataDto {
 
     @Valid
-    private final Set<AuthorDataDto> authorDataDtos;
+    private final Set<AuthorDataDto> authors;
 
-    public BookDto(String isbnId, String title, Set<AuthorDataDto> authorDataDtos) {
+    public BookDto(String isbnId, String title, Set<AuthorDataDto> authors) {
         super(isbnId, title);
-        this.authorDataDtos = authorDataDtos;
+        this.authors = authors;
     }
 }

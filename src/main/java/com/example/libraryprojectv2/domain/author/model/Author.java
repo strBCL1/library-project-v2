@@ -19,7 +19,7 @@ import java.util.Set;
 public class Author {
 
     @Id
-    @Column(name = "orcid_id", length = 16)
+    @Column(name = "orcid_id", length = 16, updatable = false)
     private String orcidId;
 
     @Column(name = "first_name")
@@ -43,6 +43,11 @@ public class Author {
     public void addBook(final Book book) {
         this.books.add(book);
         book.getAuthors().add(this);
+    }
+
+    public void updateAuthorData(final String firstName, final String lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 
     @Override

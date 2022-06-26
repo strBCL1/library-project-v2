@@ -3,18 +3,19 @@ package com.example.libraryprojectv2.domain.author.service;
 import com.example.libraryprojectv2.domain.author.dao.AuthorRepository;
 import com.example.libraryprojectv2.domain.author.dto.AuthorDataDto;
 import com.example.libraryprojectv2.domain.author.dto.AuthorDto;
-import com.example.libraryprojectv2.domain.author.mapper.AuthorMapper;
+import com.example.libraryprojectv2.domain.author.dto.AuthorIdDto;
 import com.example.libraryprojectv2.domain.author.model.Author;
 import com.example.libraryprojectv2.domain.book.dao.BookRepository;
-import com.example.libraryprojectv2.domain.book.dto.BookIsbnDtoList;
-import com.example.libraryprojectv2.domain.book.mapper.BookMapper;
+import com.example.libraryprojectv2.domain.book.dto.BookIdDto;
 import com.example.libraryprojectv2.domain.book.model.Book;
+import com.example.libraryprojectv2.domain.mapper.Mapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,20 +25,19 @@ import static java.text.MessageFormat.format;
 @Service
 public class AuthorService {
     private final AuthorRepository authorRepository;
-    private final AuthorMapper authorMapper;
     private final BookRepository bookRepository;
-    private final BookMapper bookMapper;
+    private final Mapper mapper;
 
-    public AuthorService(AuthorRepository authorRepository, AuthorMapper authorMapper, BookRepository bookRepository, BookMapper bookMapper) {
+
+    public AuthorService(AuthorRepository authorRepository, BookRepository bookRepository, Mapper mapper) {
         this.authorRepository = authorRepository;
-        this.authorMapper = authorMapper;
         this.bookRepository = bookRepository;
-        this.bookMapper = bookMapper;
+        this.mapper = mapper;
     }
 
     @Transactional
-    public AuthorDataDto createAuthor(final AuthorDataDto authorDataDto) {
-        final Author newAuthor = authorMapper.authorDataDtoToAuthor(authorDataDto);
+    public AuthorIdDto createAuthor(final AuthorIdDto authorIdDto) {
+        final Author newAuthor = mapper.authorIdDtoToAuthor(authorIdDto);
         final String newAuthorOrcidId = newAuthor.getOrcidId();
 
         final Optional<Author> optionalAuthor = authorRepository.findById(newAuthorOrcidId);
@@ -49,34 +49,26 @@ public class AuthorService {
         }
 
         final Author savedAuthor = authorRepository.save(newAuthor);
-        final AuthorDataDto savedAuthorDataDto = authorMapper.authorToAuthorDataDto(savedAuthor);
-        return savedAuthorDataDto;
+        final AuthorIdDto savedAuthorIdDto = mapper.authorToAuthorIdDto(savedAuthor);
+        return savedAuthorIdDto;
     }
 
-    public AuthorDto getAuthorByOrcidId(final String orcidId) {
-        final Author author = authorRepository
-                .findById(orcidId)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        format("Author with ORCID code of {0} not found!", orcidId)
-                ));
 
-        final AuthorDto authorDto = authorMapper.authorToAuthorDto(author);
+    public AuthorDto getAuthorByOrcidId(final String orcidId) {
+        final Author author = getAuthorByOrcidIdOrThrowEntityNotFoundException(orcidId);
+
+        final AuthorDto authorDto = mapper.authorToAuthorDto(author);
         return authorDto;
     }
 
     @Transactional
-    public AuthorDto addOrUpdateBooksOfAuthor(final BookIsbnDtoList bookIsbnDtoList, final String orcidId) {
-        final Author author = authorRepository
-                .findById(orcidId)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        format("Author with ORCID code of {0} not found!", orcidId)
-                ));
+    public AuthorDto updateBooksOfAuthor(final List<BookIdDto> bookIsbnDtos, final String orcidId) {
+        final Author author = getAuthorByOrcidIdOrThrowEntityNotFoundException(orcidId);
 
         final Set<Book> authorBooks = author.getBooks();
-        final Set<Book> newBooks = bookIsbnDtoList
-                .bookDataDtos()
+        final Set<Book> newBooks = bookIsbnDtos
                 .stream()
-                .map(bookMapper::BookIsbnDtoToBook)
+                .map(mapper::bookIdDtoToBook)
                 .collect(Collectors.toSet());
 
 //        Convert list of all books to set to minimize search time complexity
@@ -87,17 +79,64 @@ public class AuthorService {
                 return;
             }
 
-            if (!allBooks.contains(book)) {
-                throw new EntityNotFoundException(
-                        format("Book with ISBN code of {0} not found!", book.getIsbnId())
-                );
-            }
+            final Book existingBook = allBooks
+                    .stream()
+                    .filter(databaseBook -> databaseBook.equals(book))
+                    .findFirst()
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            format("Book with ISBN code of {0} not found!", book.getIsbnId())
+                    ));
 
-            author.addBook(book);
+            author.addBook(existingBook);
         });
 
         final Author updatedAuthor = authorRepository.save(author);
-        final AuthorDto authorDto = authorMapper.authorToAuthorDto(updatedAuthor);
+        final AuthorDto authorDto = mapper.authorToAuthorDto(updatedAuthor);
         return authorDto;
+    }
+
+
+    public List<AuthorDto> getAuthors() {
+        final List<Author> authors = authorRepository.findAll();
+
+        final List<AuthorDto> authorDtos = authors
+                .stream()
+                .map(mapper::authorToAuthorDto)
+                .toList();
+
+        return authorDtos;
+    }
+
+
+    @Transactional
+    public void deleteAuthor(final String orcidId) {
+        if (!authorRepository.existsById(orcidId)) {
+            throw new EntityNotFoundException(
+                    format("Author with ORCID code of {0} not found!", orcidId)
+            );
+        }
+
+        authorRepository.deleteById(orcidId);
+    }
+
+
+    @Transactional
+    public AuthorDataDto updateAuthorData(final AuthorDataDto authorDataDto, final String orcidId) {
+        final Author author = getAuthorByOrcidIdOrThrowEntityNotFoundException(orcidId);
+
+        author.updateAuthorData(authorDataDto.getFirstName(), authorDataDto.getLastName());
+
+        final Author savedAuthor = authorRepository.save(author);
+        final AuthorDataDto savedAuthorDataDto = mapper.authorToAuthorIdDto(savedAuthor);
+        return savedAuthorDataDto;
+    }
+
+
+    private Author getAuthorByOrcidIdOrThrowEntityNotFoundException(final String orcidId) {
+        return authorRepository
+                .findById(orcidId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        format("Author with ORCID code of {0} not found!", orcidId)
+                ));
     }
 }

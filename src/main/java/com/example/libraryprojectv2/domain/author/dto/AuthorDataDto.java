@@ -1,20 +1,29 @@
 package com.example.libraryprojectv2.domain.author.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import javax.validation.constraints.Pattern;
 
-@AllArgsConstructor
 @Getter
 public class AuthorDataDto {
 
-        @Pattern(regexp = "\\d{16}", message = "Author's ORCID code must only have digits of length of 16!")
-        private final String orcidId;
+//        org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Cannot construct instance of ...
+        private static final String DEFAULT_FIRST_NAME = "DEFAULT_FIRST_NAME";
+        private static final String DEFAULT_LAST_NAME = "DEFAULT_LAST_NAME";
 
-        @Pattern(regexp = "\\w{1,45}", message = "Author's first name must have from 1 to 45 characters!")
+        @Pattern(regexp = "[a-zA-Z]{1,45}", message = "Author's first name must only have letters of length from 1 to 45!")
         private final String firstName;
 
-        @Pattern(regexp = "\\w{1,45}", message = "Author's last name must have from 1 to 45 characters!")
+        @Pattern(regexp = "[a-zA-Z]{1,45}", message = "Author's last name must only have letters of length from 1 to 45!")
         private final String lastName;
+
+        public AuthorDataDto(String firstName, String lastName) {
+                this.firstName = firstName;
+                this.lastName = lastName;
+        }
+
+        public AuthorDataDto() {
+                this.firstName = DEFAULT_FIRST_NAME;
+                this.lastName = DEFAULT_LAST_NAME;
+        }
 }
