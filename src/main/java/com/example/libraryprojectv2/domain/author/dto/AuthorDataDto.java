@@ -11,10 +11,10 @@ public class AuthorDataDto {
         private static final String DEFAULT_FIRST_NAME = "DEFAULT_FIRST_NAME";
         private static final String DEFAULT_LAST_NAME = "DEFAULT_LAST_NAME";
 
-        @Pattern(regexp = "[a-zA-Z]{1,45}", message = "Author's first name must only have letters of length from 1 to 45!")
+        @Pattern(regexp = "[a-zA-Z]{0,45}", message = "Author's first name may only contain up to 45 letters!")
         private final String firstName;
 
-        @Pattern(regexp = "[a-zA-Z]{1,45}", message = "Author's last name must only have letters of length from 1 to 45!")
+        @Pattern(regexp = "[a-zA-Z]{0,45}", message = "Author's last name may only contain up to 45 letters!")
         private final String lastName;
 
         public AuthorDataDto(String firstName, String lastName) {

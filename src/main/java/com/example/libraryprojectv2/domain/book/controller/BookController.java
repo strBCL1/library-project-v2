@@ -50,6 +50,7 @@ public class BookController {
         return createdBook;
     }
 
+
     @PutMapping("/{isbn-id}")
     @ResponseStatus(HttpStatus.OK)
     public BookTitleDto updateBookData(@RequestBody @NotNull @Valid final BookTitleDto bookTitleDto,
@@ -57,6 +58,7 @@ public class BookController {
         final BookTitleDto updatedBookTitleDto = bookService.updateBookData(bookTitleDto, isbnId);
         return updatedBookTitleDto;
     }
+
 
     @DeleteMapping("/{isbn-id}")
     @ResponseStatus(HttpStatus.OK)
