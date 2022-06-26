@@ -29,6 +29,7 @@ public interface Mapper { // All mapping methods in one class to avoid cycling
     Author authorIdDtoToAuthor(AuthorIdDto authorIdDto); // authorIdDto -> author
 
 
+    @Named("authorToAuthorIdDto")
     @InheritInverseConfiguration
     AuthorIdDto authorToAuthorIdDto(Author author); // author -> authorIdDto
 
@@ -41,9 +42,9 @@ public interface Mapper { // All mapping methods in one class to avoid cycling
     AuthorDataDto authorToAuthorDataDto(Author author); // author -> authorDataDto
 
 
-    @Named("authorSetToAuthorDataDtoSet")
-    @IterableMapping(qualifiedByName = "authorToAuthorDataDto")
-    Set<AuthorDataDto> authorSetToAuthorDataDtoSet(Set<Author> books);
+    @Named("authorSetToAuthorIdDtoSet")
+    @IterableMapping(qualifiedByName = "authorToAuthorIdDto")
+    Set<AuthorIdDto> authorSetToAuthorIdDtoSet(Set<Author> books);
 
 
 //    ========================================== 'Book' entity ===============================================
@@ -57,7 +58,7 @@ public interface Mapper { // All mapping methods in one class to avoid cycling
     BookIdDto bookToBookIdDto(Book book); // book -> bookIdDto
 
 
-    @Mapping(source = "authors", target = "authors", qualifiedByName = "authorSetToAuthorDataDtoSet")
+    @Mapping(source = "authors", target = "authors", qualifiedByName = "authorSetToAuthorIdDtoSet")
     BookDto bookToBookDto(Book book); // book -> bookDto
 
 

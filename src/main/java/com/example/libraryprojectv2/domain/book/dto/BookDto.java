@@ -1,6 +1,6 @@
 package com.example.libraryprojectv2.domain.book.dto;
 
-import com.example.libraryprojectv2.domain.author.dto.AuthorDataDto;
+import com.example.libraryprojectv2.domain.author.dto.AuthorIdDto;
 import lombok.Getter;
 
 import javax.validation.Valid;
@@ -10,9 +10,9 @@ import java.util.Set;
 public class BookDto extends BookDataDto {
 
     @Valid
-    private final Set<AuthorDataDto> authors;
+    private final Set<AuthorIdDto> authors;
 
-    public BookDto(String isbnId, String title, Set<AuthorDataDto> authors) {
+    public BookDto(String isbnId, String title, Set<AuthorIdDto> authors) {
         super(isbnId, title);
         this.authors = authors;
     }
