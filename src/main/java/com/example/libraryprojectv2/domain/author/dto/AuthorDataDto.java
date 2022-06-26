@@ -22,7 +22,7 @@ public class AuthorDataDto {
                 this.lastName = lastName;
         }
 
-        public AuthorDataDto() {
+        protected AuthorDataDto() {
                 this.firstName = DEFAULT_FIRST_NAME;
                 this.lastName = DEFAULT_LAST_NAME;
         }

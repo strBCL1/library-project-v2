@@ -18,7 +18,7 @@ public class AuthorIdDto extends AuthorDataDto {
         this.orcidId = orcidId;
     }
 
-    public AuthorIdDto() {
+    protected AuthorIdDto() {
         super();
         this.orcidId = DEFAULT_ORCID_ID;
     }

@@ -17,7 +17,7 @@ public class BookIdDto {
         this.isbnId = isbnId;
     }
 
-    public BookIdDto() {
+    protected BookIdDto() {
         this.isbnId = DEFAULT_ISBN_ID;
     }
 }
