@@ -25,6 +25,7 @@ public interface Mapper { // All mapping methods in one class to avoid cycling
 //    ========================================== 'Author' entity ===============================================
 
 
+    @Named("authorIdDtoToAuthor")
     Author authorIdDtoToAuthor(AuthorIdDto authorIdDto); // authorIdDto -> author
 
 
@@ -67,24 +68,22 @@ public interface Mapper { // All mapping methods in one class to avoid cycling
 
 
     @Named("bookToBookDataDto")
+    @Mapping(source = "publisher", target = "publisher", qualifiedByName = "publisherToPublisherIdDto")
     BookDataDto bookToBookDataDto(Book book); // book -> bookDataDto
 
 
     @InheritInverseConfiguration(name = "bookToBookDataDto")
+    @Mapping(source = "publisher", target = "publisher", qualifiedByName = "publisherIdDtoToPublisher")
     Book bookDataDtoToBook(BookDataDto bookDataDto); // bookDataDto -> book
-
-
-    Book bookTitleDtoToBook(BookTitleDto bookTitleDto); // bookTitleDto -> book
-
-
-    @InheritInverseConfiguration
-    BookTitleDto bookToBookTitleDto(Book book); // book -> bookTitleDto
 
 
     Book bookIsbnIdDtoToBook(BookIsbnIdDto bookIsbnIdDto); // bookIsbnIdDto -> book
 
 
     Book bookInitDtoToBook(BookInitDto bookInitDto); // bookInitDto -> book
+
+    @Mapping(source = "authors", target = "authors", qualifiedByName = "authorIdDtoToAuthor")
+    Book bookFullInfoDtoToBook(BookFullInfoDto bookFullInfoDto); // bookFullInfoDto -> book
 
 
     @Named("bookSetToBookIdDtoSet")

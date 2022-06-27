@@ -1,5 +1,5 @@
 package com.example.libraryprojectv2.domain.publisher.dto;
 
-import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.Positive;
 
-public record PublisherOnlyIdDto(@PositiveOrZero Long id) {}
+public record PublisherOnlyIdDto(@Positive Long id) {}

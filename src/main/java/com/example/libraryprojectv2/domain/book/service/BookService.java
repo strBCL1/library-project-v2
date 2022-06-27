@@ -3,9 +3,7 @@ package com.example.libraryprojectv2.domain.book.service;
 import com.example.libraryprojectv2.domain.author.dao.AuthorRepository;
 import com.example.libraryprojectv2.domain.author.model.Author;
 import com.example.libraryprojectv2.domain.book.dao.BookRepository;
-import com.example.libraryprojectv2.domain.book.dto.BookDataDto;
-import com.example.libraryprojectv2.domain.book.dto.BookDto;
-import com.example.libraryprojectv2.domain.book.dto.BookInitDto;
+import com.example.libraryprojectv2.domain.book.dto.*;
 import com.example.libraryprojectv2.domain.book.model.Book;
 import com.example.libraryprojectv2.domain.mapper.Mapper;
 import com.example.libraryprojectv2.domain.publisher.dao.PublisherRepository;
@@ -35,6 +33,7 @@ public class BookService {
         this.mapper = mapper;
     }
 
+
     public List<BookDto> getAllBooks() {
         final List<Book> books = bookRepository.findAll();
 
@@ -56,7 +55,7 @@ public class BookService {
 
 
     @Transactional
-    public BookDataDto createBook(final BookInitDto bookInitDto) {
+    public BookIdDto createBook(final BookInitDto bookInitDto) {
         final Book newBook = mapper.bookInitDtoToBook(bookInitDto);
         final String newBookIsbnId = newBook.getIsbnId();
 
@@ -68,15 +67,24 @@ public class BookService {
             );
         }
 
+        final long publisherId = bookInitDto.publisher().id();
+        final Optional<Publisher> optionalPublisher = publisherRepository.findById(publisherId);
+
+        if (optionalPublisher.isEmpty()) {
+            throw new EntityNotFoundException(
+                    format("Publisher with ID of {0} not found!", publisherId)
+            );
+        }
+
         final Book savedBook = bookRepository.save(newBook);
-        final BookDataDto savedBookDataDto = mapper.bookToBookDataDto(savedBook);
-        return savedBookDataDto;
+        final BookIdDto savedBookIdDto = mapper.bookToBookIdDto(savedBook);
+        return savedBookIdDto;
     }
 
 
     @Transactional
-    public BookDto updateBookData(final BookInitDto bookInitDto, final String isbnId) {
-        final Long publisherId = bookInitDto.publisher().id();
+    public BookDto updateBookData(final BookUpdateDto bookUpdateDto, final String isbnId) {
+        final Long publisherId = bookUpdateDto.publisher().id();
         final Publisher publisher = publisherRepository
                 .findById(publisherId)
                 .orElseThrow(() -> new EntityNotFoundException(
@@ -84,7 +92,7 @@ public class BookService {
                 ));
 
         final Book book = getBookByIsbnIdOrThrowEntityNotFoundException(isbnId);
-        book.updateBookData(bookInitDto.title(), publisher);
+        book.updateBookData(bookUpdateDto.title(), publisher);
 
         final Book savedBook = bookRepository.save(book);
         final BookDto updatedBookDto = mapper.bookToBookDto(savedBook);
