@@ -1,24 +1,19 @@
 package com.example.libraryprojectv2.domain.publisher.dto;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
 
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 
 @Getter
-public class PublisherIdDto {
+@JsonPropertyOrder({"id"})
+public class PublisherIdDto extends PublisherDataDto {
 
-    //    org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Cannot construct instance of ...
-    private final static Long DEFAULT_ID = 0L;
-
-    @NotNull @PositiveOrZero
+    @PositiveOrZero
     private final Long id;
 
-    public PublisherIdDto(Long id) {
+    public PublisherIdDto(String name, String address, String city, String country, Long id) {
+        super(name, address, city, country);
         this.id = id;
-    }
-
-    protected PublisherIdDto() {
-        this.id = DEFAULT_ID;
     }
 }

@@ -5,6 +5,7 @@ import com.example.libraryprojectv2.domain.author.model.Author;
 import com.example.libraryprojectv2.domain.book.dao.BookRepository;
 import com.example.libraryprojectv2.domain.book.dto.BookDataDto;
 import com.example.libraryprojectv2.domain.book.dto.BookDto;
+import com.example.libraryprojectv2.domain.book.dto.BookInitDto;
 import com.example.libraryprojectv2.domain.book.dto.BookTitleDto;
 import com.example.libraryprojectv2.domain.book.model.Book;
 import com.example.libraryprojectv2.domain.mapper.Mapper;
@@ -51,8 +52,8 @@ public class BookService {
 
 
     @Transactional
-    public BookDataDto createBook(final BookDataDto bookDataDto) {
-        final Book newBook = mapper.bookDataDtoToBook(bookDataDto);
+    public BookDataDto createBook(final BookInitDto bookInitDto) {
+        final Book newBook = mapper.bookInitDtoToBook(bookInitDto);
         final String newBookIsbnId = newBook.getIsbnId();
 
         final Optional<Book> bookOptional = bookRepository.findById(newBookIsbnId);
@@ -70,10 +71,10 @@ public class BookService {
 
 
     @Transactional
-    public BookTitleDto updateBookData(final BookTitleDto bookTitleDto, final String isbnId) {
+    public BookTitleDto updateBookData(final BookInitDto bookInitDto, final String isbnId) {
         final Book book = getBookByIsbnIdOrThrowEntityNotFoundException(isbnId);
 
-        book.updateBookData(bookTitleDto.title());
+        book.updateBookData(bookInitDto.title());
 
         final Book savedBook = bookRepository.save(book);
         final BookTitleDto updatedBookTitleDto = mapper.bookToBookTitleDto(savedBook);

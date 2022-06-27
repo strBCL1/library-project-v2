@@ -41,6 +41,13 @@ public class Publisher {
     }, fetch = FetchType.LAZY, mappedBy = "publisher")
     private Set<Book> books = new HashSet<>();
 
+    public void updatePublisherData(final String name, final String address, final String city, final String country) {
+        this.name = name;
+        this.address = address;
+        this.city = city;
+        this.country = country;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

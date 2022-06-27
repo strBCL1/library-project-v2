@@ -7,13 +7,13 @@ import javax.validation.Valid;
 import java.util.Set;
 
 @Getter
-public class PublisherDto extends PublisherDataDto {
+public class PublisherDto extends PublisherIdDto {
 
     @Valid
     private final Set<BookDataDto> books;
 
-    public PublisherDto(Long id, String name, String address, String city, String country, Set<BookDataDto> books) {
-        super(id, name, address, city, country);
+    public PublisherDto(String name, String address, String city, String country, Long id, Set<BookDataDto> books) {
+        super(name, address, city, country, id);
         this.books = books;
     }
 }

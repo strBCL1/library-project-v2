@@ -6,7 +6,7 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.Pattern;
 
 @Getter
-public class PublisherDataDto extends PublisherIdDto {
+public class PublisherDataDto {
 
     @Pattern(regexp = "[a-zA-Z]{0,45}", message = "Publisher's name may only contain up to 45 letters!")
     private final String name;
@@ -20,8 +20,7 @@ public class PublisherDataDto extends PublisherIdDto {
     @Length(max = 45, message = "Publisher's country may only contain up to 45 characters!")
     private final String country;
 
-    public PublisherDataDto(Long id, String name, String address, String city, String country) {
-        super(id);
+    public PublisherDataDto(String name, String address, String city, String country) {
         this.name = name;
         this.address = address;
         this.city = city;

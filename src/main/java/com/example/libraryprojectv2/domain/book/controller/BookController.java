@@ -2,6 +2,7 @@ package com.example.libraryprojectv2.domain.book.controller;
 
 import com.example.libraryprojectv2.domain.book.dto.BookDataDto;
 import com.example.libraryprojectv2.domain.book.dto.BookDto;
+import com.example.libraryprojectv2.domain.book.dto.BookInitDto;
 import com.example.libraryprojectv2.domain.book.dto.BookTitleDto;
 import com.example.libraryprojectv2.domain.book.service.BookService;
 import org.springframework.http.HttpStatus;
@@ -45,17 +46,17 @@ public class BookController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public BookDataDto createBook(@RequestBody @NotNull @Valid final BookDataDto bookDataDto) {
-        final BookDataDto createdBook = bookService.createBook(bookDataDto);
+    public BookDataDto createBook(@RequestBody @NotNull @Valid final BookInitDto bookInitDto) {
+        final BookDataDto createdBook = bookService.createBook(bookInitDto);
         return createdBook;
     }
 
 
     @PutMapping("/{isbn-id}")
     @ResponseStatus(HttpStatus.OK)
-    public BookTitleDto updateBookData(@RequestBody @NotNull @Valid final BookTitleDto bookTitleDto,
+    public BookTitleDto updateBookData(@RequestBody @NotNull @Valid final BookInitDto bookInitDto,
                                        @PathVariable("isbn-id") @Pattern(regexp = "\\d{13}", message = "Book's ISBN code must only have digits of length of 13!") final String isbnId) {
-        final BookTitleDto updatedBookTitleDto = bookService.updateBookData(bookTitleDto, isbnId);
+        final BookTitleDto updatedBookTitleDto = bookService.updateBookData(bookInitDto, isbnId);
         return updatedBookTitleDto;
     }
 

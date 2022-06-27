@@ -16,7 +16,8 @@ public class SpringFoxConfig {
     public Docket apiDocket() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
-                .apis(RequestHandlerSelectors.any())
+//                .apis(RequestHandlerSelectors.any())
+                .apis(RequestHandlerSelectors.basePackage("com.example.libraryprojectv2.domain")) // https://stackoverflow.com/questions/32941917/remove-basic-error-controller-in-springfox-swaggerui
                 .paths(PathSelectors.any())
                 .build();
     }

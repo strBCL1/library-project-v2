@@ -1,11 +1,15 @@
 package com.example.libraryprojectv2.domain.publisher.controller;
 
+import com.example.libraryprojectv2.domain.publisher.dto.PublisherDataDto;
 import com.example.libraryprojectv2.domain.publisher.dto.PublisherDto;
+import com.example.libraryprojectv2.domain.publisher.dto.PublisherIdDto;
 import com.example.libraryprojectv2.domain.publisher.service.PublisherService;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.util.List;
 
@@ -43,5 +47,22 @@ public class PublisherController {
     public PublisherDto getPublisherById(@PathVariable @Pattern(regexp = "\\d+", message = "Publisher's id must only contain digits!") final String id) {
         final PublisherDto publisherDto = publisherService.getPublisherById(Long.parseLong(id));
         return publisherDto;
+    }
+
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public PublisherIdDto createPublisher(@RequestBody @NotNull @Valid final PublisherDataDto publisherDataDto) {
+        final PublisherIdDto createdPublisherIdDto = publisherService.createPublisher(publisherDataDto);
+        return createdPublisherIdDto;
+    }
+
+
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public PublisherDto updatePublisherData(@RequestBody @NotNull @Valid final PublisherDataDto publisherDataDto,
+                                            @PathVariable @Pattern(regexp = "\\d+", message = "Publisher's id must only contain digits!") final String id) {
+        final PublisherDto updatedPublisherDto = publisherService.updatePublisherData(publisherDataDto, Long.parseLong(id));
+        return updatedPublisherDto;
     }
 }
