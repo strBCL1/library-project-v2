@@ -4,10 +4,7 @@ import com.example.libraryprojectv2.domain.author.dto.AuthorDataDto;
 import com.example.libraryprojectv2.domain.author.dto.AuthorDto;
 import com.example.libraryprojectv2.domain.author.dto.AuthorIdDto;
 import com.example.libraryprojectv2.domain.author.model.Author;
-import com.example.libraryprojectv2.domain.book.dto.BookDataDto;
-import com.example.libraryprojectv2.domain.book.dto.BookDto;
-import com.example.libraryprojectv2.domain.book.dto.BookIdDto;
-import com.example.libraryprojectv2.domain.book.dto.BookTitleDto;
+import com.example.libraryprojectv2.domain.book.dto.*;
 import com.example.libraryprojectv2.domain.book.model.Book;
 import com.example.libraryprojectv2.domain.publisher.dto.PublisherDto;
 import com.example.libraryprojectv2.domain.publisher.model.Publisher;
@@ -75,6 +72,9 @@ public interface Mapper { // All mapping methods in one class to avoid cycling
 
     @InheritInverseConfiguration
     BookTitleDto bookToBookTitleDto(Book book); // book -> bookTitleDto
+
+
+    Book bookIsbnIdDtoToBook(BookIsbnIdDto bookIsbnIdDto); // bookIsbnIdDto -> book
 
 
     @Named("bookSetToBookDataDtoSet")

@@ -4,7 +4,7 @@ import com.example.libraryprojectv2.domain.author.dto.AuthorDataDto;
 import com.example.libraryprojectv2.domain.author.dto.AuthorDto;
 import com.example.libraryprojectv2.domain.author.dto.AuthorIdDto;
 import com.example.libraryprojectv2.domain.author.service.AuthorService;
-import com.example.libraryprojectv2.domain.book.dto.BookIdDto;
+import com.example.libraryprojectv2.domain.book.dto.BookIsbnIdDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -46,9 +46,9 @@ public class AuthorController {
 
     @PutMapping("/{orcid-id}/books")
     @ResponseStatus(HttpStatus.OK)
-    public AuthorDto updateBooksOfAuthor(@RequestBody @NotNull @Valid final List<BookIdDto> bookIsbnDtos,
+    public AuthorDto updateBooks(@RequestBody @NotNull @Valid final List<BookIsbnIdDto> bookIsbnIdDtos,
                                          @PathVariable("orcid-id") @Pattern(regexp = "\\d{16}", message = "Author's ORCID code must only have digits of length of 16!") final String orcidId) {
-        final AuthorDto updatedAuthorDto = authorService.updateBooksOfAuthor(bookIsbnDtos, orcidId);
+        final AuthorDto updatedAuthorDto = authorService.updateBooks(bookIsbnIdDtos, orcidId);
         return updatedAuthorDto;
     }
 

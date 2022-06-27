@@ -6,7 +6,7 @@ import com.example.libraryprojectv2.domain.author.dto.AuthorDto;
 import com.example.libraryprojectv2.domain.author.dto.AuthorIdDto;
 import com.example.libraryprojectv2.domain.author.model.Author;
 import com.example.libraryprojectv2.domain.book.dao.BookRepository;
-import com.example.libraryprojectv2.domain.book.dto.BookIdDto;
+import com.example.libraryprojectv2.domain.book.dto.BookIsbnIdDto;
 import com.example.libraryprojectv2.domain.book.model.Book;
 import com.example.libraryprojectv2.domain.mapper.Mapper;
 import org.springframework.stereotype.Service;
@@ -62,13 +62,13 @@ public class AuthorService {
     }
 
     @Transactional
-    public AuthorDto updateBooksOfAuthor(final List<BookIdDto> bookIsbnDtos, final String orcidId) {
+    public AuthorDto updateBooks(final List<BookIsbnIdDto> bookIsbnDtos, final String orcidId) {
         final Author author = getAuthorByOrcidIdOrThrowEntityNotFoundException(orcidId);
 
         final Set<Book> authorBooks = author.getBooks();
         final Set<Book> newBooks = bookIsbnDtos
                 .stream()
-                .map(mapper::bookIdDtoToBook)
+                .map(mapper::bookIsbnIdDtoToBook)
                 .collect(Collectors.toSet());
 
 //        Convert list of all books to set to minimize search time complexity

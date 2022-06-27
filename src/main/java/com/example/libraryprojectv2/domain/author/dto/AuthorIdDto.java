@@ -7,7 +7,6 @@ import javax.validation.constraints.Pattern;
 @Getter
 public class AuthorIdDto extends AuthorDataDto {
 
-//    org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Cannot construct instance of ...
     private static final String DEFAULT_ORCID_ID = "0000000000000000";
 
     @Pattern(regexp = "\\d{16}", message = "Author's ORCID code must only have digits of length of 16!")
@@ -18,6 +17,7 @@ public class AuthorIdDto extends AuthorDataDto {
         this.orcidId = orcidId;
     }
 
+//    org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Cannot construct instance of ...
     protected AuthorIdDto() {
         super();
         this.orcidId = DEFAULT_ORCID_ID;
