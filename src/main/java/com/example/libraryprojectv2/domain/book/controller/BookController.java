@@ -15,8 +15,6 @@ import java.util.List;
 @RequestMapping("/books")
 @Validated
 public class BookController {
-
-
     private final BookService bookService;
 
 
@@ -28,24 +26,21 @@ public class BookController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<BookDto> getAllBooks() {
-        final List<BookDto> bookDtos = bookService.getAllBooks();
-        return bookDtos;
+        return bookService.getAllBooks();
     }
 
 
     @GetMapping("/{isbn-id}")
     @ResponseStatus(HttpStatus.OK)
     public BookDto getBookByIsbnId(@PathVariable("isbn-id") @Pattern(regexp = "\\d{13}", message = "Book's ISBN code must only have digits of length of 13!") final String isbnId) {
-        final BookDto bookDto = bookService.getBookByIsbnId(isbnId);
-        return bookDto;
+        return bookService.getBookByIsbnId(isbnId);
     }
 
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BookIdDto createBook(@RequestBody @NotNull @Valid final BookInitDto bookInitDto) {
-        final BookIdDto createdBook = bookService.createBook(bookInitDto);
-        return createdBook;
+        return bookService.createBook(bookInitDto);
     }
 
 
@@ -53,8 +48,7 @@ public class BookController {
     @ResponseStatus(HttpStatus.OK)
     public BookDto updateBookData(@RequestBody @NotNull @Valid final BookUpdateDto bookUpdateDto,
                                        @PathVariable("isbn-id") @Pattern(regexp = "\\d{13}", message = "Book's ISBN code must only have digits of length of 13!") final String isbnId) {
-        final BookDto updatedBookDto = bookService.updateBookData(bookUpdateDto, isbnId);
-        return updatedBookDto;
+        return bookService.updateBookData(bookUpdateDto, isbnId);
     }
 
 

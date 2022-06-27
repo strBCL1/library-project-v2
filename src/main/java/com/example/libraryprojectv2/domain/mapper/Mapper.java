@@ -10,13 +10,16 @@ import com.example.libraryprojectv2.domain.publisher.dto.PublisherDataDto;
 import com.example.libraryprojectv2.domain.publisher.dto.PublisherDto;
 import com.example.libraryprojectv2.domain.publisher.dto.PublisherIdDto;
 import com.example.libraryprojectv2.domain.publisher.model.Publisher;
-import org.mapstruct.*;
+import org.mapstruct.InheritInverseConfiguration;
+import org.mapstruct.IterableMapping;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
 import java.util.Set;
 
 @org.mapstruct.Mapper(componentModel = "spring")
-public interface Mapper { // All mapping methods in one class to avoid cycling
+public interface Mapper { // All mapping methods are in one class to avoid cycling
 
 
     Mapper INSTANCE = Mappers.getMapper(Mapper.class);
@@ -60,10 +63,8 @@ public interface Mapper { // All mapping methods in one class to avoid cycling
     BookIdDto bookToBookIdDto(Book book); // book -> bookIdDto
 
 
-    @Mappings({
-            @Mapping(source = "authors", target = "authors", qualifiedByName = "authorSetToAuthorIdDtoSet"),
-            @Mapping(source = "publisher", target = "publisher", qualifiedByName = "publisherToPublisherIdDto")
-    })
+    @Mapping(source = "authors", target = "authors", qualifiedByName = "authorSetToAuthorIdDtoSet")
+    @Mapping(source = "publisher", target = "publisher", qualifiedByName = "publisherToPublisherIdDto")
     BookDto bookToBookDto(Book book); // book -> bookDto
 
 

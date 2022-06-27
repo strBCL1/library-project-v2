@@ -37,20 +37,17 @@ public class BookService {
     public List<BookDto> getAllBooks() {
         final List<Book> books = bookRepository.findAll();
 
-        final List<BookDto> bookDtos = books
+        return books
                 .stream()
                 .map(mapper::bookToBookDto)
                 .toList();
-
-        return bookDtos;
     }
 
 
     public BookDto getBookByIsbnId(final String isbnId) {
         final Book book = getBookByIsbnIdOrThrowEntityNotFoundException(isbnId);
-        final BookDto bookDto = mapper.bookToBookDto(book);
 
-        return bookDto;
+        return mapper.bookToBookDto(book);
     }
 
 
@@ -77,8 +74,7 @@ public class BookService {
         }
 
         final Book savedBook = bookRepository.save(newBook);
-        final BookIdDto savedBookIdDto = mapper.bookToBookIdDto(savedBook);
-        return savedBookIdDto;
+        return mapper.bookToBookIdDto(savedBook);
     }
 
 
@@ -95,8 +91,7 @@ public class BookService {
         book.updateBookData(bookUpdateDto.title(), publisher);
 
         final Book savedBook = bookRepository.save(book);
-        final BookDto updatedBookDto = mapper.bookToBookDto(savedBook);
-        return updatedBookDto;
+        return mapper.bookToBookDto(savedBook);
     }
 
 

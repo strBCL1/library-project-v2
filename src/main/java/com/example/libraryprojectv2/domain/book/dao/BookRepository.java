@@ -9,5 +9,7 @@ import java.util.List;
 
 @Repository
 public interface BookRepository extends JpaRepository<Book, String> {
+
+//    Find books which given publisher
     List<Book> findByPublisher_Id(@NonNull Long id);
 }

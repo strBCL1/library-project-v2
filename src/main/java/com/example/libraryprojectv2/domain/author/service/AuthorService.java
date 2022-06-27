@@ -50,16 +50,14 @@ public class AuthorService {
         }
 
         final Author savedAuthor = authorRepository.save(newAuthor);
-        final AuthorIdDto savedAuthorIdDto = mapper.authorToAuthorIdDto(savedAuthor);
-        return savedAuthorIdDto;
+        return mapper.authorToAuthorIdDto(savedAuthor);
     }
 
 
     public AuthorDto getAuthorByOrcidId(final String orcidId) {
         final Author author = getAuthorByOrcidIdOrThrowEntityNotFoundException(orcidId);
 
-        final AuthorDto authorDto = mapper.authorToAuthorDto(author);
-        return authorDto;
+        return mapper.authorToAuthorDto(author);
     }
 
 
@@ -93,20 +91,17 @@ public class AuthorService {
         });
 
         final Author updatedAuthor = authorRepository.save(author);
-        final AuthorDto authorDto = mapper.authorToAuthorDto(updatedAuthor);
-        return authorDto;
+        return mapper.authorToAuthorDto(updatedAuthor);
     }
 
 
     public List<AuthorDto> getAuthors() {
         final List<Author> authors = authorRepository.findAll();
 
-        final List<AuthorDto> authorDtos = authors
+        return authors
                 .stream()
                 .map(mapper::authorToAuthorDto)
                 .toList();
-
-        return authorDtos;
     }
 
 
@@ -129,8 +124,7 @@ public class AuthorService {
         author.updateAuthorData(authorDataDto.getFirstName(), authorDataDto.getLastName());
 
         final Author savedAuthor = authorRepository.save(author);
-        final AuthorDto savedAuthorDto = mapper.authorToAuthorDto(savedAuthor);
-        return savedAuthorDto;
+        return mapper.authorToAuthorDto(savedAuthor);
     }
 
 

@@ -17,8 +17,6 @@ import java.util.List;
 @RequestMapping("/publishers")
 @Validated
 public class PublisherController {
-
-
     private final PublisherService publisherService;
 
 
@@ -37,24 +35,21 @@ public class PublisherController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<PublisherDto> getPublishers() {
-        final List<PublisherDto> publisherDtos = publisherService.getPublishers();
-        return publisherDtos;
+        return publisherService.getPublishers();
     }
 
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public PublisherDto getPublisherById(@PathVariable @Pattern(regexp = "\\d+", message = "Publisher's id must only contain digits!") final String id) {
-        final PublisherDto publisherDto = publisherService.getPublisherById(Long.parseLong(id));
-        return publisherDto;
+        return publisherService.getPublisherById(Long.parseLong(id));
     }
 
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PublisherIdDto createPublisher(@RequestBody @NotNull @Valid final PublisherDataDto publisherDataDto) {
-        final PublisherIdDto createdPublisherIdDto = publisherService.createPublisher(publisherDataDto);
-        return createdPublisherIdDto;
+        return publisherService.createPublisher(publisherDataDto);
     }
 
 
@@ -62,7 +57,6 @@ public class PublisherController {
     @ResponseStatus(HttpStatus.OK)
     public PublisherDto updatePublisherData(@RequestBody @NotNull @Valid final PublisherDataDto publisherDataDto,
                                             @PathVariable @Pattern(regexp = "\\d+", message = "Publisher's id must only contain digits!") final String id) {
-        final PublisherDto updatedPublisherDto = publisherService.updatePublisherData(publisherDataDto, Long.parseLong(id));
-        return updatedPublisherDto;
+        return publisherService.updatePublisherData(publisherDataDto, Long.parseLong(id));
     }
 }

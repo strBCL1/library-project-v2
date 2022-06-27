@@ -54,20 +54,17 @@ public class PublisherService {
     public List<PublisherDto> getPublishers() {
         final List<Publisher> publishers = publisherRepository.findAll();
 
-        final List<PublisherDto> publisherDtos = publishers
+        return publishers
                 .stream()
                 .map(mapper::publisherToPublisherDto)
                 .toList();
-
-        return publisherDtos;
     }
 
 
     public PublisherDto getPublisherById(final long id) {
         final Publisher publisher = getPublisherByIdOrThrowEntityNotFoundException(id);
-        final PublisherDto publisherDto = mapper.publisherToPublisherDto(publisher);
 
-        return publisherDto;
+        return mapper.publisherToPublisherDto(publisher);
     }
 
 
@@ -85,8 +82,7 @@ public class PublisherService {
         }
 
         final Publisher savedPublisher = publisherRepository.save(newPublisher);
-        final PublisherIdDto savedAuthorIdDto = mapper.publisherToPublisherIdDto(savedPublisher);
-        return savedAuthorIdDto;
+        return mapper.publisherToPublisherIdDto(savedPublisher);
     }
 
 
@@ -102,8 +98,7 @@ public class PublisherService {
         );
 
         final Publisher savedPublisher = publisherRepository.save(publisher);
-        final PublisherDto savedPublisherDto = mapper.publisherToPublisherDto(savedPublisher);
-        return savedPublisherDto;
+        return mapper.publisherToPublisherDto(savedPublisher);
     }
 
     private Publisher getPublisherByIdOrThrowEntityNotFoundException(final long id) {

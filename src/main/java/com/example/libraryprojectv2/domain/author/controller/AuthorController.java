@@ -18,8 +18,6 @@ import java.util.List;
 @RequestMapping("/authors")
 @Validated
 public class AuthorController {
-
-
     private final AuthorService authorService;
 
 
@@ -31,16 +29,14 @@ public class AuthorController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public AuthorIdDto createAuthor(@RequestBody @NotNull @Valid final AuthorIdDto authorIdDto) {
-        final AuthorIdDto savedAuthorIdDto = authorService.createAuthor(authorIdDto);
-        return savedAuthorIdDto;
+        return authorService.createAuthor(authorIdDto);
     }
 
 
     @GetMapping("/{orcid-id}")
     @ResponseStatus(HttpStatus.OK)
     public AuthorDto getAuthorByOrcidId(@PathVariable("orcid-id") @Pattern(regexp = "\\d{16}", message = "Author's ORCID code must only have digits of length of 16!") final String orcidId) {
-        final AuthorDto authorDto = authorService.getAuthorByOrcidId(orcidId);
-        return authorDto;
+        return authorService.getAuthorByOrcidId(orcidId);
     }
 
 
@@ -48,16 +44,14 @@ public class AuthorController {
     @ResponseStatus(HttpStatus.OK)
     public AuthorDto updateBooks(@RequestBody @NotNull @Valid final List<BookIsbnIdDto> bookIsbnIdDtos,
                                  @PathVariable("orcid-id") @Pattern(regexp = "\\d{16}", message = "Author's ORCID code must only have digits of length of 16!") final String orcidId) {
-        final AuthorDto updatedAuthorDto = authorService.updateBooks(bookIsbnIdDtos, orcidId);
-        return updatedAuthorDto;
+        return authorService.updateBooks(bookIsbnIdDtos, orcidId);
     }
 
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<AuthorDto> getAuthors() {
-        final List<AuthorDto> authorDtos = authorService.getAuthors();
-        return authorDtos;
+        return authorService.getAuthors();
     }
 
 
@@ -72,7 +66,6 @@ public class AuthorController {
     @ResponseStatus(HttpStatus.OK)
     public AuthorDto updateAuthorData(@RequestBody @NotNull @Valid final AuthorDataDto authorDataDto,
                                           @PathVariable("orcid-id") @Pattern(regexp = "\\d{16}", message = "Author's ORCID code must only have digits of length of 16!") final String orcidId) {
-        final AuthorDto updatedAuthorDto = authorService.updateAuthorData(authorDataDto, orcidId);
-        return updatedAuthorDto;
+        return authorService.updateAuthorData(authorDataDto, orcidId);
     }
 }
