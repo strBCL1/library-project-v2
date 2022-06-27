@@ -32,8 +32,9 @@ public class Book {
     @ManyToOne(fetch = FetchType.LAZY)
     private Publisher publisher;
 
-    public void updateBookData(final String title) {
+    public void updateBookData(final String title, final Publisher publisher) {
         this.title = title;
+        this.publisher = publisher;
     }
 
     @Override

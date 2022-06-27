@@ -1,7 +1,5 @@
 package com.example.libraryprojectv2.domain.publisher.service;
 
-import com.example.libraryprojectv2.domain.author.dto.AuthorIdDto;
-import com.example.libraryprojectv2.domain.author.model.Author;
 import com.example.libraryprojectv2.domain.book.dao.BookRepository;
 import com.example.libraryprojectv2.domain.book.model.Book;
 import com.example.libraryprojectv2.domain.mapper.Mapper;
@@ -15,18 +13,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
-
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static java.text.MessageFormat.format;
 
 @Service
 public class PublisherService {
     private final PublisherRepository publisherRepository;
-    private final Mapper mapper;
     private final BookRepository bookRepository;
+    private final Mapper mapper;
 
 
     public PublisherService(PublisherRepository publisherRepository, Mapper mapper, BookRepository bookRepository) {
@@ -98,7 +94,12 @@ public class PublisherService {
     public PublisherDto updatePublisherData(final PublisherDataDto publisherDataDto, final long id) {
         final Publisher publisher = getPublisherByIdOrThrowEntityNotFoundException(id);
 
-        publisher.updatePublisherData(publisherDataDto.getName(), publisherDataDto.getAddress(), publisherDataDto.getCity(), publisherDataDto.getCountry());
+        publisher.updatePublisherData(
+                publisherDataDto.getName(),
+                publisherDataDto.getAddress(),
+                publisherDataDto.getCity(),
+                publisherDataDto.getCountry()
+        );
 
         final Publisher savedPublisher = publisherRepository.save(publisher);
         final PublisherDto savedPublisherDto = mapper.publisherToPublisherDto(savedPublisher);

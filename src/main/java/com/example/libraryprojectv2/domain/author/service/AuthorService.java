@@ -35,6 +35,7 @@ public class AuthorService {
         this.mapper = mapper;
     }
 
+
     @Transactional
     public AuthorIdDto createAuthor(final AuthorIdDto authorIdDto) {
         final Author newAuthor = mapper.authorIdDtoToAuthor(authorIdDto);
@@ -60,6 +61,7 @@ public class AuthorService {
         final AuthorDto authorDto = mapper.authorToAuthorDto(author);
         return authorDto;
     }
+
 
     @Transactional
     public AuthorDto updateBooks(final List<BookIsbnIdDto> bookIsbnDtos, final String orcidId) {
@@ -121,14 +123,14 @@ public class AuthorService {
 
 
     @Transactional
-    public AuthorDataDto updateAuthorData(final AuthorDataDto authorDataDto, final String orcidId) {
+    public AuthorDto updateAuthorData(final AuthorDataDto authorDataDto, final String orcidId) {
         final Author author = getAuthorByOrcidIdOrThrowEntityNotFoundException(orcidId);
 
         author.updateAuthorData(authorDataDto.getFirstName(), authorDataDto.getLastName());
 
         final Author savedAuthor = authorRepository.save(author);
-        final AuthorDataDto savedAuthorDataDto = mapper.authorToAuthorIdDto(savedAuthor);
-        return savedAuthorDataDto;
+        final AuthorDto savedAuthorDto = mapper.authorToAuthorDto(savedAuthor);
+        return savedAuthorDto;
     }
 
 

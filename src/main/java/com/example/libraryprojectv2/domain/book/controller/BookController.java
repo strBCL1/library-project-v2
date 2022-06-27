@@ -54,10 +54,10 @@ public class BookController {
 
     @PutMapping("/{isbn-id}")
     @ResponseStatus(HttpStatus.OK)
-    public BookTitleDto updateBookData(@RequestBody @NotNull @Valid final BookInitDto bookInitDto,
+    public BookDto updateBookData(@RequestBody @NotNull @Valid final BookInitDto bookInitDto,
                                        @PathVariable("isbn-id") @Pattern(regexp = "\\d{13}", message = "Book's ISBN code must only have digits of length of 13!") final String isbnId) {
-        final BookTitleDto updatedBookTitleDto = bookService.updateBookData(bookInitDto, isbnId);
-        return updatedBookTitleDto;
+        final BookDto updatedBookDto = bookService.updateBookData(bookInitDto, isbnId);
+        return updatedBookDto;
     }
 
 

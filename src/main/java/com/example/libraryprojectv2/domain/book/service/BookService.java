@@ -6,9 +6,10 @@ import com.example.libraryprojectv2.domain.book.dao.BookRepository;
 import com.example.libraryprojectv2.domain.book.dto.BookDataDto;
 import com.example.libraryprojectv2.domain.book.dto.BookDto;
 import com.example.libraryprojectv2.domain.book.dto.BookInitDto;
-import com.example.libraryprojectv2.domain.book.dto.BookTitleDto;
 import com.example.libraryprojectv2.domain.book.model.Book;
 import com.example.libraryprojectv2.domain.mapper.Mapper;
+import com.example.libraryprojectv2.domain.publisher.dao.PublisherRepository;
+import com.example.libraryprojectv2.domain.publisher.model.Publisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,13 +23,16 @@ import static java.text.MessageFormat.format;
 @Service
 public class BookService {
     private final BookRepository bookRepository;
-    private final Mapper mapper;
+    private final PublisherRepository publisherRepository;
     private final AuthorRepository authorRepository;
+    private final Mapper mapper;
 
-    public BookService(BookRepository bookRepository, Mapper mapper, AuthorRepository authorRepository) {
+
+    public BookService(BookRepository bookRepository, PublisherRepository publisherRepository, AuthorRepository authorRepository, Mapper mapper) {
         this.bookRepository = bookRepository;
-        this.mapper = mapper;
+        this.publisherRepository = publisherRepository;
         this.authorRepository = authorRepository;
+        this.mapper = mapper;
     }
 
     public List<BookDto> getAllBooks() {
@@ -36,7 +40,7 @@ public class BookService {
 
         final List<BookDto> bookDtos = books
                 .stream()
-                .map(book -> mapper.bookToBookDto(book))
+                .map(mapper::bookToBookDto)
                 .toList();
 
         return bookDtos;
@@ -71,14 +75,20 @@ public class BookService {
 
 
     @Transactional
-    public BookTitleDto updateBookData(final BookInitDto bookInitDto, final String isbnId) {
-        final Book book = getBookByIsbnIdOrThrowEntityNotFoundException(isbnId);
+    public BookDto updateBookData(final BookInitDto bookInitDto, final String isbnId) {
+        final Long publisherId = bookInitDto.publisher().id();
+        final Publisher publisher = publisherRepository
+                .findById(publisherId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        format("Publisher with ID of {0} not found!", publisherId)
+                ));
 
-        book.updateBookData(bookInitDto.title());
+        final Book book = getBookByIsbnIdOrThrowEntityNotFoundException(isbnId);
+        book.updateBookData(bookInitDto.title(), publisher);
 
         final Book savedBook = bookRepository.save(book);
-        final BookTitleDto updatedBookTitleDto = mapper.bookToBookTitleDto(savedBook);
-        return updatedBookTitleDto;
+        final BookDto updatedBookDto = mapper.bookToBookDto(savedBook);
+        return updatedBookDto;
     }
 
 
