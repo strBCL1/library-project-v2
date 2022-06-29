@@ -79,6 +79,7 @@ public interface Mapper { // All mapping methods are in one class to avoid cycli
 
     Book bookInitDtoToBook(BookInitDto bookInitDto); // bookInitDto -> book
 
+
     @Mapping(source = "authors", target = "authors", qualifiedByName = "authorIdDtoToAuthor")
     Book bookFullInfoDtoToBook(BookFullInfoDto bookFullInfoDto); // bookFullInfoDto -> book
 
