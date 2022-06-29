@@ -1,6 +1,5 @@
 package com.example.libraryprojectv2.domain.mapper;
 
-import com.example.libraryprojectv2.domain.author.dto.AuthorDataDto;
 import com.example.libraryprojectv2.domain.author.dto.AuthorDto;
 import com.example.libraryprojectv2.domain.author.dto.AuthorIdDto;
 import com.example.libraryprojectv2.domain.author.model.Author;
@@ -41,19 +40,16 @@ public interface Mapper { // All mapping methods are in one class to avoid cycli
     AuthorDto authorToAuthorDto(Author author); // author -> authorDto
 
 
-    @Named("authorToAuthorDataDto")
-    AuthorDataDto authorToAuthorDataDto(Author author); // author -> authorDataDto
-
-
     @Named("authorSetToAuthorIdDtoSet")
     @IterableMapping(qualifiedByName = "authorToAuthorIdDto")
-    Set<AuthorIdDto> authorSetToAuthorIdDtoSet(Set<Author> books);
+    Set<AuthorIdDto> authorSetToAuthorIdDtoSet(Set<Author> authors);
 
 
 //    ========================================== 'Book' entity ===============================================
 
 
     @Named("bookIdDtoToBook")
+    @Mapping(source = "publisher", target = "publisher", qualifiedByName = "publisherIdDtoToPublisher")
     Book bookIdDtoToBook(BookIdDto bookIdDto); // bookIdDto -> book
 
 
