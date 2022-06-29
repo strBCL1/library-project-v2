@@ -4,6 +4,9 @@ import com.example.libraryprojectv2.domain.book.model.Book;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.Valid;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -20,14 +23,18 @@ public class Author {
 
     @Id
     @Column(name = "orcid_id", length = 16, updatable = false)
+    @Pattern(regexp = "\\d{16}", message = "Author's ORCID code must only have digits of length of 16!")
     private String orcidId;
 
-    @Column(name = "first_name")
+    @Column(name = "first_name", length = 45)
+    @Pattern(regexp = "[a-zA-Z]{0,45}", message = "Author's first name may only contain up to 45 letters!")
     private String firstName;
 
-    @Column(name = "last_name")
+    @Column(name = "last_name", length = 45)
+    @Pattern(regexp = "[a-zA-Z]{0,45}", message = "Author's last name may only contain up to 45 letters!")
     private String lastName;
 
+    @Valid
     @ManyToMany(cascade = {
             CascadeType.PERSIST,
             CascadeType.MERGE,
