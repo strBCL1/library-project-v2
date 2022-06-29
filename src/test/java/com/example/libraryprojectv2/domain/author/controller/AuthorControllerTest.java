@@ -1,5 +1,6 @@
 package com.example.libraryprojectv2.domain.author.controller;
 
+import com.example.libraryprojectv2.configuration.response.handler.RestExceptionHandler;
 import com.example.libraryprojectv2.domain.author.dao.AuthorRepository;
 import com.example.libraryprojectv2.domain.author.dto.AuthorDataDto;
 import com.example.libraryprojectv2.domain.author.dto.AuthorIdDto;
@@ -15,10 +16,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Collections;
@@ -35,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringJUnitWebConfig(classes = AuthorControllerTestConfig.class)
+@SpringBootTest
 class AuthorControllerTest {
 
     private final static String VALID_FIRST_NAME = "firstName";
@@ -56,23 +60,28 @@ class AuthorControllerTest {
     @Autowired
     WebApplicationContext context;
 
-    @Autowired
+    @SpyBean
     Mapper mapper;
 
-    @Autowired
+    @MockBean
     AuthorRepository authorRepository;
 
-    @Autowired
+    @MockBean
     BookRepository bookRepository;
 
-    @Autowired
+    @SpyBean
     AuthorService authorService;
 
-    @Autowired
+    @SpyBean
     AuthorController authorController;
 
-    @Autowired
-    ObjectMapper objectMapper;
+    @SpyBean
+    RestExceptionHandler restExceptionHandler;
+
+    @SpyBean
+    MethodValidationPostProcessor methodValidationPostProcessor;
+
+    ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void setUp() {
