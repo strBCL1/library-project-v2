@@ -5,6 +5,7 @@ import com.example.libraryprojectv2.domain.author.dao.AuthorRepository;
 import com.example.libraryprojectv2.domain.author.service.AuthorService;
 import com.example.libraryprojectv2.domain.book.dao.BookRepository;
 import com.example.libraryprojectv2.domain.mapper.Mapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -28,7 +29,7 @@ public class AuthorControllerTestConfig {
 
     @Bean
     public BookRepository bookRepository() {
-        return Mockito.mock(BookRepository.class);
+        return Mockito.mock(BookRepository.class, Mockito.CALLS_REAL_METHODS);
     }
 
     @Bean
@@ -53,5 +54,10 @@ public class AuthorControllerTestConfig {
     MethodValidationPostProcessor methodValidationPostProcessor() {
 //        return new MethodValidationPostProcessor();
         return Mockito.spy(MethodValidationPostProcessor.class);
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
     }
 }
