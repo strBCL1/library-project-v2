@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.equalTo;
@@ -167,5 +168,47 @@ class AuthorControllerTest {
 
         verify(authorRepository, never()).findById(author.getOrcidId());
         verify(authorService, never()).getAuthorByOrcidId(author.getOrcidId());
+    }
+
+
+//    ============================================== GET authors ====================================================
+
+
+    @Test
+    void givenAuthors_whenGetAuthors_thenReturnAuthors() throws Exception {
+        final Author author1 = new Author(VALID_ORCID_ID, VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
+        final Author author2 = new Author(VALID_ORCID_ID.replace(VALID_ORCID_ID.charAt(0), (char) (VALID_ORCID_ID.charAt(0) + 1)), VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
+        final Book book = new Book(VALID_ISBN_ID, VALID_TITLE, new HashSet<>(), null);
+        final Publisher publisher = new Publisher(VALID_ID, VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, new HashSet<>());
+
+        author1.addBook(book);
+        author2.addBook(book);
+        book.updatePublisher(publisher);
+
+        final List<Author> authors = List.of(author1, author2);
+
+        when(authorRepository.findAll()).thenReturn(authors);
+
+        mockMvc.perform(get("/authors"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(authors.size())))
+                .andExpect(jsonPath("$.[0].orcidId", equalTo(author1.getOrcidId())))
+                .andExpect(jsonPath("$.[0].firstName", equalTo(author1.getFirstName())))
+                .andExpect(jsonPath("$.[0].lastName", equalTo(author1.getLastName())))
+                .andExpect(jsonPath("$.[0].books", hasSize(1)))
+                .andExpect(jsonPath("$.[0].books.[0].isbnId", equalTo(book.getIsbnId())))
+                .andExpect(jsonPath("$.[0].books.[0].title", equalTo(book.getTitle())))
+                .andExpect(jsonPath("$.[0].books.[0].publisher.id", equalTo(publisher.getId().intValue())))
+                .andExpect(jsonPath("$.[0].books.[0].publisher.name", equalTo(publisher.getName())))
+                .andExpect(jsonPath("$.[0].books.[0].publisher.address", equalTo(publisher.getAddress())))
+                .andExpect(jsonPath("$.[0].books.[0].publisher.city", equalTo(publisher.getCity())))
+                .andExpect(jsonPath("$.[0].books.[0].publisher.country", equalTo(publisher.getCountry())))
+                .andExpect(jsonPath("$.[0].books.[0].publisher.books").doesNotExist());
+
+
+        verify(authorRepository, times(1)).findAll();
+        verify(authorService, times(1)).getAuthors();
+        verify(authorController, times(1)).getAuthors();
     }
 }
