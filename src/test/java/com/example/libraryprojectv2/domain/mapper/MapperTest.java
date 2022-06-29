@@ -189,6 +189,16 @@ class MapperTest {
     }
 
     @Test
+    void givenBook_whenBookToBookFullInfoDto_thenBookEqualsToBookFullInfoDto() { // book -> bookFullInfoDto
+        final Book book = new Book(VALID_ISBN_ID, VALID_TITLE, Collections.emptySet(), null);
+        final BookFullInfoDto bookFullInfoDto = mapper.bookToBookFullInfoDto(book);
+
+        assertAll("Book's fields must equal to BookFullInfoDto's fields",
+                () -> assertEquals(book.getIsbnId(), bookFullInfoDto.isbnId()),
+                () -> assertEquals(book.getTitle(), bookFullInfoDto.title()));
+    }
+
+    @Test
     void givenBooksSet_whenBookSetToBookIdDtoSet_thenBooksSetEqualsToBookIdDtoSet() { // 'Book' set -> 'BookIdDto' set
         final Set<Book> books = Set.of(
                 new Book(VALID_ISBN_ID, VALID_TITLE, Collections.emptySet(), null)

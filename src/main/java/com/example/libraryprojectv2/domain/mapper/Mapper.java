@@ -32,7 +32,7 @@ public interface Mapper { // All mapping methods are in one class to avoid cycli
 
 
     @Named("authorToAuthorIdDto")
-    @InheritInverseConfiguration
+    @InheritInverseConfiguration(name = "authorIdDtoToAuthor")
     AuthorIdDto authorToAuthorIdDto(Author author); // author -> authorIdDto
 
 
@@ -80,8 +80,13 @@ public interface Mapper { // All mapping methods are in one class to avoid cycli
     Book bookInitDtoToBook(BookInitDto bookInitDto); // bookInitDto -> book
 
 
+    @Named("bookFullInfoDtoToBook")
     @Mapping(source = "authors", target = "authors", qualifiedByName = "authorIdDtoToAuthor")
     Book bookFullInfoDtoToBook(BookFullInfoDto bookFullInfoDto); // bookFullInfoDto -> book
+
+    @InheritInverseConfiguration(name = "bookFullInfoDtoToBook")
+    @Mapping(source = "authors", target = "authors", qualifiedByName = "authorSetToAuthorIdDtoSet")
+    BookFullInfoDto bookToBookFullInfoDto(Book book); // book -> bookFullInfoDto
 
 
     @Named("bookSetToBookIdDtoSet")
@@ -96,6 +101,7 @@ public interface Mapper { // All mapping methods are in one class to avoid cycli
     Publisher publisherDtoToPublisher(PublisherDto publisherDto); // publisherDto -> publisher
 
 
+    @Named("publisherToPublisherDto")
     @InheritInverseConfiguration(name = "publisherDtoToPublisher")
     PublisherDto publisherToPublisherDto(Publisher publisher); // publisher -> publisherDto
 

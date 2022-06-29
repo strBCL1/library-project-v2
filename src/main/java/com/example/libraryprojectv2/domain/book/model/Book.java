@@ -5,6 +5,9 @@ import com.example.libraryprojectv2.domain.publisher.model.Publisher;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.Valid;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -21,14 +24,18 @@ public class Book {
 
     @Id
     @Column(name = "isbn_id", length = 13, updatable = false)
+    @Pattern(regexp = "\\d{13}", message = "Book's ISBN code must only have digits of length of 13!")
     private String isbnId;
 
     @Column(name = "title")
+    @Size(max = 255, message = "Book's title may only contain up to 255 characters!")
     private String title;
 
+    @Valid
     @ManyToMany(mappedBy = "books", fetch = FetchType.LAZY)
     private Set<Author> authors = new HashSet<>();
 
+    @Valid
     @ManyToOne(fetch = FetchType.LAZY)
     private Publisher publisher;
 
