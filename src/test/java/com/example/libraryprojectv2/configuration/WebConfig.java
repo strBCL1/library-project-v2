@@ -19,29 +19,30 @@ public class WebConfig {
 
     @Bean
     public Mapper mapper() {
-        return Mockito.spy(Mapper.class);
+        return Mockito.spy(Mapper.INSTANCE);
     }
 
     @Bean
     public AuthorRepository authorRepository() {
-        return Mockito.spy(AuthorRepository.class);
+        return Mockito.mock(AuthorRepository.class);
     }
 
     @Bean
     public BookRepository bookRepository() {
-        return Mockito.spy(BookRepository.class);
+        return Mockito.mock(BookRepository.class);
     }
 
     @Bean
     public AuthorService authorService(@Qualifier("authorRepository") AuthorRepository authorRepository,
                                        @Qualifier("bookRepository") BookRepository bookRepository,
                                        @Qualifier("mapper") Mapper mapper) {
-        return new AuthorService(authorRepository, bookRepository, mapper);
+        return Mockito.spy(new AuthorService(authorRepository, bookRepository, mapper));
     }
 
     @Bean
     public AuthorController authorController(@Qualifier("authorService") AuthorService authorService) {
-        return new AuthorController(authorService);
+        final AuthorController authorController = new AuthorController(authorService);
+        return Mockito.spy(authorController);
     }
 
     @Bean
@@ -49,13 +50,9 @@ public class WebConfig {
         return Mockito.spy(RestExceptionHandler.class);
     }
 
-//    @Bean
-//    public LocalValidatorFactoryBean localValidatorFactoryBean() {
-//        return new LocalValidatorFactoryBean();
-//    }
-
     @Bean
     MethodValidationPostProcessor methodValidationPostProcessor() {
-        return new MethodValidationPostProcessor();
+//        return new MethodValidationPostProcessor();
+        return Mockito.spy(MethodValidationPostProcessor.class);
     }
 }
