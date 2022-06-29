@@ -41,7 +41,12 @@ public class Book {
 
     public void updateBookData(final String title, final Publisher publisher) {
         this.title = title;
+        updatePublisher(publisher);
+    }
+
+    public void updatePublisher(final Publisher publisher) {
         this.publisher = publisher;
+        publisher.getBooks().add(this);
     }
 
     @Override

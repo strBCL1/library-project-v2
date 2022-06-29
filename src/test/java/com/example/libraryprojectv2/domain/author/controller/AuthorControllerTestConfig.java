@@ -1,7 +1,6 @@
-package com.example.libraryprojectv2.configuration;
+package com.example.libraryprojectv2.domain.author.controller;
 
 import com.example.libraryprojectv2.configuration.response.handler.RestExceptionHandler;
-import com.example.libraryprojectv2.domain.author.controller.AuthorController;
 import com.example.libraryprojectv2.domain.author.dao.AuthorRepository;
 import com.example.libraryprojectv2.domain.author.service.AuthorService;
 import com.example.libraryprojectv2.domain.book.dao.BookRepository;
@@ -15,7 +14,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @TestConfiguration
 @EnableWebMvc
-public class WebConfig {
+public class AuthorControllerTestConfig {
 
     @Bean
     public Mapper mapper() {

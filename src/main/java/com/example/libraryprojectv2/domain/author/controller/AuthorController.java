@@ -36,7 +36,8 @@ public class AuthorController {
     @GetMapping("/{orcid-id}")
     @ResponseStatus(HttpStatus.OK)
     public AuthorDto getAuthorByOrcidId(@PathVariable("orcid-id") @Pattern(regexp = "\\d{16}", message = "Author's ORCID code must only have digits of length of 16!") final String orcidId) {
-        return authorService.getAuthorByOrcidId(orcidId);
+        AuthorDto authorDto = authorService.getAuthorByOrcidId(orcidId);
+        return authorDto;
     }
 
 
