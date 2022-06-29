@@ -73,6 +73,7 @@ class AuthorControllerTest {
 
 //    ============================================== GET author by ORCID ID ====================================================
 
+
     @Test
     void givenValidOrcidId_whenGetAuthorByOrcidId_thenReturnValidAuthor() throws Exception {
         final Author author = new Author(VALID_ORCID_ID, VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
@@ -103,5 +104,68 @@ class AuthorControllerTest {
         verify(authorRepository, times(1)).findById(author.getOrcidId());
         verify(authorService, times(1)).getAuthorByOrcidId(author.getOrcidId());
         verify(authorController, times(1)).getAuthorByOrcidId(author.getOrcidId());
+    }
+
+
+    @Test
+    void givenShortOrcidId_whenGetAuthorByOrcidId_thenReturnErrorMessage() throws Exception {
+        final Author author = new Author(VALID_ORCID_ID.substring(VALID_ORCID_ID.length() - 1), VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
+        final Book book = new Book(VALID_ISBN_ID, VALID_TITLE, new HashSet<>(), null);
+        final Publisher publisher = new Publisher(VALID_ID, VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, new HashSet<>());
+
+        author.addBook(book);
+        book.updatePublisher(publisher);
+
+        when(authorRepository.findById(anyString())).thenReturn(Optional.of(author));
+
+        mockMvc.perform(get("/authors/" + author.getOrcidId()))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.cause", equalTo("Author's ORCID code must only have digits of length of 16!")));
+
+        verify(authorRepository, never()).findById(author.getOrcidId());
+        verify(authorService, never()).getAuthorByOrcidId(author.getOrcidId());
+    }
+
+
+    @Test
+    void givenLongOrcidId_whenGetAuthorByOrcidId_thenReturnErrorMessage() throws Exception {
+        final Author author = new Author(VALID_ORCID_ID.repeat(2), VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
+        final Book book = new Book(VALID_ISBN_ID, VALID_TITLE, new HashSet<>(), null);
+        final Publisher publisher = new Publisher(VALID_ID, VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, new HashSet<>());
+
+        author.addBook(book);
+        book.updatePublisher(publisher);
+
+        when(authorRepository.findById(anyString())).thenReturn(Optional.of(author));
+
+        mockMvc.perform(get("/authors/" + author.getOrcidId()))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.cause", equalTo("Author's ORCID code must only have digits of length of 16!")));
+
+        verify(authorRepository, never()).findById(author.getOrcidId());
+        verify(authorService, never()).getAuthorByOrcidId(author.getOrcidId());
+    }
+
+
+    @Test
+    void givenOrcidIdWithLetters_whenGetAuthorByOrcidId_thenReturnErrorMessage() throws Exception {
+        final Author author = new Author(VALID_ORCID_ID.replace(VALID_ORCID_ID.charAt(0), 'A'), VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
+        final Book book = new Book(VALID_ISBN_ID, VALID_TITLE, new HashSet<>(), null);
+        final Publisher publisher = new Publisher(VALID_ID, VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, new HashSet<>());
+
+        author.addBook(book);
+        book.updatePublisher(publisher);
+
+        when(authorRepository.findById(anyString())).thenReturn(Optional.of(author));
+
+        mockMvc.perform(get("/authors/" + author.getOrcidId()))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.cause", equalTo("Author's ORCID code must only have digits of length of 16!")));
+
+        verify(authorRepository, never()).findById(author.getOrcidId());
+        verify(authorService, never()).getAuthorByOrcidId(author.getOrcidId());
     }
 }
