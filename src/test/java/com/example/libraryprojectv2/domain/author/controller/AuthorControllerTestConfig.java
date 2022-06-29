@@ -29,7 +29,7 @@ public class AuthorControllerTestConfig {
 
     @Bean
     public BookRepository bookRepository() {
-        return Mockito.mock(BookRepository.class, Mockito.CALLS_REAL_METHODS);
+        return Mockito.mock(BookRepository.class);
     }
 
     @Bean
@@ -41,8 +41,7 @@ public class AuthorControllerTestConfig {
 
     @Bean
     public AuthorController authorController(@Qualifier("authorService") AuthorService authorService) {
-        final AuthorController authorController = new AuthorController(authorService);
-        return Mockito.spy(authorController);
+        return Mockito.spy(new AuthorController(authorService));
     }
 
     @Bean
@@ -52,7 +51,7 @@ public class AuthorControllerTestConfig {
 
     @Bean
     MethodValidationPostProcessor methodValidationPostProcessor() {
-        return new MethodValidationPostProcessor();
+        return Mockito.spy(new MethodValidationPostProcessor());
     }
 
     @Bean
