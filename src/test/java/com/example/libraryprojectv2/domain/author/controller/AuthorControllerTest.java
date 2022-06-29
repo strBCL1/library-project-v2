@@ -115,7 +115,7 @@ class AuthorControllerTest {
 
 
     @Test
-    void givenShortOrcidId_whenGetAuthorByOrcidId_thenReturnErrorMessage() throws Exception {
+    void givenShortOrcidId_whenGetAuthorByOrcidId_thenReturnOrcidIdErrorMessage() throws Exception {
         final Author author = new Author(VALID_ORCID_ID.substring(VALID_ORCID_ID.length() - 1), VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
         final Book book = new Book(VALID_ISBN_ID, VALID_TITLE, new HashSet<>(), null);
         final Publisher publisher = new Publisher(VALID_ID, VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, new HashSet<>());
@@ -133,7 +133,7 @@ class AuthorControllerTest {
 
 
     @Test
-    void givenLongOrcidId_whenGetAuthorByOrcidId_thenReturnErrorMessage() throws Exception {
+    void givenLongOrcidId_whenGetAuthorByOrcidId_thenReturnOrcidIdErrorMessage() throws Exception {
         final Author author = new Author(VALID_ORCID_ID.repeat(2), VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
         final Book book = new Book(VALID_ISBN_ID, VALID_TITLE, new HashSet<>(), null);
         final Publisher publisher = new Publisher(VALID_ID, VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, new HashSet<>());
@@ -151,7 +151,7 @@ class AuthorControllerTest {
 
 
     @Test
-    void givenOrcidIdWithLetters_whenGetAuthorByOrcidId_thenReturnErrorMessage() throws Exception {
+    void givenOrcidIdWithLetters_whenGetAuthorByOrcidId_thenReturnOrcidIdErrorMessage() throws Exception {
         final Author author = new Author(VALID_ORCID_ID.replace(VALID_ORCID_ID.charAt(0), 'A'), VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
         final Book book = new Book(VALID_ISBN_ID, VALID_TITLE, new HashSet<>(), null);
         final Publisher publisher = new Publisher(VALID_ID, VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, new HashSet<>());
@@ -167,7 +167,7 @@ class AuthorControllerTest {
                 .andExpect(jsonPath("$.cause", equalTo("Author's ORCID code must only have digits of length of 16!")));
     }
 
-
+    
 //    ============================================== GET authors ====================================================
 
 
@@ -228,7 +228,7 @@ class AuthorControllerTest {
 
 
     @Test
-    void givenLongOrcidId_whenCreateAuthor_thenReturnErrorMessage() throws Exception {
+    void givenLongOrcidId_whenCreateAuthor_thenReturnOrcidIdErrorMessage() throws Exception {
         final AuthorIdDto authorIdDto = new AuthorIdDto(VALID_FIRST_NAME, VALID_LAST_NAME, VALID_ORCID_ID.repeat(2));
         final Author author = new Author(authorIdDto.getOrcidId(), authorIdDto.getFirstName(), authorIdDto.getLastName(), Collections.emptySet());
 
@@ -244,7 +244,7 @@ class AuthorControllerTest {
 
 
     @Test
-    void givenShortOrcidId_whenCreateAuthor_thenReturnErrorMessage() throws Exception {
+    void givenShortOrcidId_whenCreateAuthor_thenReturnOrcidIdErrorMessage() throws Exception {
         final AuthorIdDto authorIdDto = new AuthorIdDto(VALID_FIRST_NAME, VALID_LAST_NAME, VALID_ORCID_ID.substring(VALID_ORCID_ID.length() - 1));
         final Author author = new Author(authorIdDto.getOrcidId(), authorIdDto.getFirstName(), authorIdDto.getLastName(), Collections.emptySet());
 
@@ -260,7 +260,7 @@ class AuthorControllerTest {
 
 
     @Test
-    void givenOrcidIdWithLetters_whenCreateAuthor_thenReturnErrorMessage() throws Exception {
+    void givenOrcidIdWithLetters_whenCreateAuthor_thenReturnOrcidIdErrorMessage() throws Exception {
         final AuthorIdDto authorIdDto = new AuthorIdDto(VALID_FIRST_NAME, VALID_LAST_NAME, VALID_ORCID_ID.replace(VALID_ORCID_ID.charAt(0), 'A'));
         final Author author = new Author(authorIdDto.getOrcidId(), authorIdDto.getFirstName(), authorIdDto.getLastName(), Collections.emptySet());
 
@@ -276,7 +276,7 @@ class AuthorControllerTest {
 
 
     @Test
-    void givenLongFirstName_whenCreateAuthor_thenReturnErrorMessage() throws Exception {
+    void givenLongFirstName_whenCreateAuthor_thenReturnFirstNameErrorMessage() throws Exception {
         final AuthorIdDto authorIdDto = new AuthorIdDto(VALID_FIRST_NAME.repeat(10), VALID_LAST_NAME, VALID_ORCID_ID);
         final Author author = new Author(authorIdDto.getOrcidId(), authorIdDto.getFirstName(), authorIdDto.getLastName(), Collections.emptySet());
 
@@ -292,7 +292,7 @@ class AuthorControllerTest {
 
 
     @Test
-    void givenFirstNameWithInvalidCharacters_whenCreateAuthor_thenReturnErrorMessage() throws Exception {
+    void givenFirstNameWithInvalidCharacters_whenCreateAuthor_thenReturnFirstNameErrorMessage() throws Exception {
         final AuthorIdDto authorIdDto = new AuthorIdDto(VALID_FIRST_NAME + "_1", VALID_LAST_NAME, VALID_ORCID_ID);
         final Author author = new Author(authorIdDto.getOrcidId(), authorIdDto.getFirstName(), authorIdDto.getLastName(), Collections.emptySet());
 
@@ -308,7 +308,7 @@ class AuthorControllerTest {
 
 
     @Test
-    void givenLongLastName_whenCreateAuthor_thenReturnErrorMessage() throws Exception {
+    void givenLongLastName_whenCreateAuthor_thenReturnLastNameErrorMessage() throws Exception {
         final AuthorIdDto authorIdDto = new AuthorIdDto(VALID_FIRST_NAME, VALID_LAST_NAME.repeat(10), VALID_ORCID_ID);
         final Author author = new Author(authorIdDto.getOrcidId(), authorIdDto.getFirstName(), authorIdDto.getLastName(), Collections.emptySet());
 
@@ -324,7 +324,7 @@ class AuthorControllerTest {
 
 
     @Test
-    void givenLastNameWithInvalidCharacters_whenCreateAuthor_thenReturnErrorMessage() throws Exception {
+    void givenLastNameWithInvalidCharacters_whenCreateAuthor_thenReturnLastNameErrorMessage() throws Exception {
         final AuthorIdDto authorIdDto = new AuthorIdDto(VALID_FIRST_NAME, VALID_LAST_NAME + "_1", VALID_ORCID_ID);
         final Author author = new Author(authorIdDto.getOrcidId(), authorIdDto.getFirstName(), authorIdDto.getLastName(), Collections.emptySet());
 

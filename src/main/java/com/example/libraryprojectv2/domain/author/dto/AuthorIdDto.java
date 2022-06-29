@@ -9,7 +9,7 @@ import javax.validation.constraints.Pattern;
 @JsonPropertyOrder({"orcidId"})
 public class AuthorIdDto extends AuthorDataDto {
 
-    private final static String DEFAULT_ORCID_ID = "0000000000000000";
+    private static final String DEFAULT_ORCID_ID = "0000000000000000";
 
     @Pattern(regexp = "\\d{16}", message = "Author's ORCID code must only have digits of length of 16!")
     private final String orcidId;

@@ -47,13 +47,12 @@ public class AuthorControllerTestConfig {
 
     @Bean
     public RestExceptionHandler restExceptionHandler() {
-        return Mockito.spy(RestExceptionHandler.class);
+        return Mockito.spy(new RestExceptionHandler());
     }
 
     @Bean
     MethodValidationPostProcessor methodValidationPostProcessor() {
-//        return new MethodValidationPostProcessor();
-        return Mockito.spy(MethodValidationPostProcessor.class);
+        return new MethodValidationPostProcessor();
     }
 
     @Bean
