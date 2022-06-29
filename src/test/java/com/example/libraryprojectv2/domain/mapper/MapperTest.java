@@ -5,6 +5,10 @@ import com.example.libraryprojectv2.domain.author.dto.AuthorIdDto;
 import com.example.libraryprojectv2.domain.author.model.Author;
 import com.example.libraryprojectv2.domain.book.dto.*;
 import com.example.libraryprojectv2.domain.book.model.Book;
+import com.example.libraryprojectv2.domain.publisher.dto.PublisherDataDto;
+import com.example.libraryprojectv2.domain.publisher.dto.PublisherDto;
+import com.example.libraryprojectv2.domain.publisher.dto.PublisherIdDto;
+import com.example.libraryprojectv2.domain.publisher.model.Publisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -206,5 +210,73 @@ class MapperTest {
                         () -> assertEquals(book.getTitle(), bookIdDto.getTitle()));
             }
                 });
+    }
+
+
+//        ========================================== 'Publisher' entity ===============================================
+
+
+    @Test
+    void givenPublisherDto_whenPublisherDtoToPublisher_thenPublisherDtoEqualsToPublisher() { // publisherDto -> publisher
+        final PublisherDto publisherDto = new PublisherDto(VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, VALID_ID, Collections.emptySet());
+        final Publisher publisher = mapper.publisherDtoToPublisher(publisherDto);
+
+        assertAll("PublisherDto's fields must equal to Publisher's fields",
+                () -> assertEquals(publisherDto.getId(), publisher.getId()),
+                () -> assertEquals(publisherDto.getName(), publisher.getName()),
+                () -> assertEquals(publisherDto.getAddress(), publisher.getAddress()),
+                () -> assertEquals(publisherDto.getCity(), publisher.getCity()),
+                () -> assertEquals(publisherDto.getCountry(), publisher.getCountry()));
+    }
+
+    @Test
+    void givenPublisher_whenPublisherToPublisherDto_thenPublisherEqualsToPublisherDto() { // publisher -> publisher
+        final Publisher publisher = new Publisher(VALID_ID, VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, Collections.emptySet());
+        final PublisherDto publisherDto = mapper.publisherToPublisherDto(publisher);
+
+        assertAll("Publisher's fields must equal to PublisherDto's fields",
+                () -> assertEquals(publisher.getId(), publisherDto.getId()),
+                () -> assertEquals(publisher.getName(), publisherDto.getName()),
+                () -> assertEquals(publisher.getAddress(), publisherDto.getAddress()),
+                () -> assertEquals(publisher.getCity(), publisherDto.getCity()),
+                () -> assertEquals(publisher.getCountry(), publisherDto.getCountry()));
+    }
+
+    @Test
+    void givenPublisherIdDto_whenPublisherIdDtoToPublisher_thenPublisherIdDtoEqualsToPublisher() { // publisherIdDto -> publisher
+        final PublisherIdDto publisherIdDto = new PublisherIdDto(VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, VALID_ID);
+        final Publisher publisher = mapper.publisherIdDtoToPublisher(publisherIdDto);
+
+        assertAll("PublisherIdDto's fields must equal to Publisher's fields",
+                () -> assertEquals(publisherIdDto.getId(), publisher.getId()),
+                () -> assertEquals(publisherIdDto.getName(), publisher.getName()),
+                () -> assertEquals(publisherIdDto.getAddress(), publisher.getAddress()),
+                () -> assertEquals(publisherIdDto.getCity(), publisher.getCity()),
+                () -> assertEquals(publisherIdDto.getCountry(), publisher.getCountry()));
+    }
+
+    @Test
+    void givenPublisher_whenPublisherToPublisherIdDto_thenPublisherEqualsToPublisherIdDto() { // publisher -> publisherIdDto
+        final Publisher publisher = new Publisher(VALID_ID, VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, Collections.emptySet());
+        final PublisherIdDto publisherIdDto = mapper.publisherToPublisherIdDto(publisher);
+
+        assertAll("Publisher's fields must equal to PublisherIdDto's fields",
+                () -> assertEquals(publisher.getId(), publisherIdDto.getId()),
+                () -> assertEquals(publisher.getName(), publisherIdDto.getName()),
+                () -> assertEquals(publisher.getAddress(), publisherIdDto.getAddress()),
+                () -> assertEquals(publisher.getCity(), publisherIdDto.getCity()),
+                () -> assertEquals(publisher.getCountry(), publisherIdDto.getCountry()));
+    }
+
+    @Test
+    void givenPublisherDataDto_whenPublisherDataDtoToPublisher_thenPublisherDataDtoEqualsToPublisher() { // publisherDataDto -> publisherDataDto
+        final PublisherDataDto publisherDataDto = new PublisherDataDto(VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY);
+        final Publisher publisher = mapper.publisherDataDtoToPublisher(publisherDataDto);
+
+        assertAll("PublisherDataDto's fields must equal to PublisherIdDto's fields",
+                () -> assertEquals(publisherDataDto.getName(), publisher.getName()),
+                () -> assertEquals(publisherDataDto.getAddress(), publisher.getAddress()),
+                () -> assertEquals(publisherDataDto.getCity(), publisher.getCity()),
+                () -> assertEquals(publisherDataDto.getCountry(), publisher.getCountry()));
     }
 }
