@@ -6,8 +6,8 @@ import javax.validation.constraints.Pattern;
 
 @Getter
 public class AuthorDataDto {
-        private static final String DEFAULT_FIRST_NAME = "DEFAULT_FIRST_NAME";
-        private static final String DEFAULT_LAST_NAME = "DEFAULT_LAST_NAME";
+        private static final String DEFAULT_FIRST_NAME = "defaultFirstName";
+        private static final String DEFAULT_LAST_NAME = "defaultLastName";
 
         @Pattern(regexp = "[a-zA-Z]{0,45}", message = "Author's first name may only contain up to 45 letters!")
         private final String firstName;
