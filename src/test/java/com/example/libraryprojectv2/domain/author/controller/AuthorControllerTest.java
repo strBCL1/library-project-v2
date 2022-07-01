@@ -12,7 +12,6 @@ import com.example.libraryprojectv2.domain.mapper.Mapper;
 import com.example.libraryprojectv2.domain.publisher.model.Publisher;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -33,8 +32,8 @@ import java.util.Optional;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -56,9 +55,11 @@ class AuthorControllerTest {
     private final static String VALID_CITY = "city";
     private final static String VALID_COUNTRY = "country";
 
-    private final Author author = new Author(VALID_ORCID_ID, VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
-    private final Book book = new Book(VALID_ISBN_ID, VALID_TITLE, new HashSet<>(), null);
-    private final Publisher publisher = new Publisher(VALID_ID, VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, new HashSet<>());
+    private Author author = new Author(VALID_ORCID_ID, VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
+    private Book book = new Book(VALID_ISBN_ID, VALID_TITLE, new HashSet<>(), null);
+    private Publisher publisher = new Publisher(VALID_ID, VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, new HashSet<>());
+    private AuthorIdDto authorIdDto = new AuthorIdDto(VALID_FIRST_NAME, VALID_LAST_NAME, VALID_ORCID_ID);
+
 
     private MockMvc mockMvc;
 
@@ -88,6 +89,7 @@ class AuthorControllerTest {
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
+
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders
@@ -100,18 +102,12 @@ class AuthorControllerTest {
         when(authorRepository.findById(author.getOrcidId())).thenReturn(Optional.of(author));
     }
 
-    @AfterEach
-    void tearDown() {
-        reset(authorRepository);
-        reset(bookRepository);
-    }
-
 
     @Nested
     class AuthorControllerGetTest {
 
 
-        private void shouldReturnInvalidOrcidIdMessageWhenSendGetRequest(final String URL) throws Exception {
+        private void shouldReturnInvalidOrcidIdMessageWhenGet(final String URL) throws Exception {
             mockMvc.perform(get(URL))
                     .andDo(print())
                     .andExpect(status().isBadRequest())
@@ -145,21 +141,21 @@ class AuthorControllerTest {
 
         @Test
         void givenShortOrcidId_whenGetAuthorByOrcidId_thenReturnOrcidIdErrorMessage() throws Exception {
-            shouldReturnInvalidOrcidIdMessageWhenSendGetRequest("/authors/" +
+            shouldReturnInvalidOrcidIdMessageWhenGet("/authors/" +
                     VALID_ORCID_ID.substring(VALID_ORCID_ID.length() - 1));
         }
 
 
         @Test
         void givenLongOrcidId_whenGetAuthorByOrcidId_thenReturnOrcidIdErrorMessage() throws Exception {
-            shouldReturnInvalidOrcidIdMessageWhenSendGetRequest("/authors/" +
+            shouldReturnInvalidOrcidIdMessageWhenGet("/authors/" +
                     VALID_ORCID_ID.repeat(2));
         }
 
 
         @Test
         void givenOrcidIdWithInvalidCharacters_whenGetAuthorByOrcidId_thenReturnOrcidIdErrorMessage() throws Exception {
-            shouldReturnInvalidOrcidIdMessageWhenSendGetRequest("/authors/" +
+            shouldReturnInvalidOrcidIdMessageWhenGet("/authors/" +
                     VALID_ORCID_ID.replace(VALID_ORCID_ID.charAt(0), 'A'));
         }
 
@@ -217,14 +213,23 @@ class AuthorControllerTest {
     class AuthorControllerPostTest {
 
 
+        private void shouldReturnInvalidFieldMessageWhenPost(final String body, final String cause) throws Exception {
+            mockMvc.perform(post("/authors")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(body))
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.cause", equalTo(cause)));
+        }
+
+
 //    ============================================== POST author ====================================================
 
 
         @Test
         void givenValidAuthorIdDto_whenCreateAuthor_thenReturnAuthorIdDto() throws Exception {
-            final AuthorIdDto authorIdDto = new AuthorIdDto(VALID_FIRST_NAME, VALID_LAST_NAME, VALID_ORCID_ID);
-            final Author author = new Author(authorIdDto.getOrcidId(), authorIdDto.getFirstName(), authorIdDto.getLastName(), Collections.emptySet());
 
+            when(authorRepository.findById(authorIdDto.getOrcidId())).thenReturn(Optional.empty());
             when(authorRepository.save(any(Author.class))).thenReturn(author);
 
             mockMvc.perform(post("/authors")
@@ -241,113 +246,112 @@ class AuthorControllerTest {
 
         @Test
         void givenLongOrcidId_whenCreateAuthor_thenReturnOrcidIdErrorMessage() throws Exception {
-            final AuthorIdDto authorIdDto = new AuthorIdDto(VALID_FIRST_NAME, VALID_LAST_NAME, VALID_ORCID_ID.repeat(2));
-            final Author author = new Author(authorIdDto.getOrcidId(), authorIdDto.getFirstName(), authorIdDto.getLastName(), Collections.emptySet());
+            authorIdDto = new AuthorIdDto(VALID_FIRST_NAME, VALID_LAST_NAME, VALID_ORCID_ID.repeat(2));
+            author = new Author(authorIdDto.getOrcidId(), authorIdDto.getFirstName(), authorIdDto.getLastName(), Collections.emptySet());
 
             when(authorRepository.save(any(Author.class))).thenReturn(author);
 
-            mockMvc.perform(post("/authors")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(toJson(authorIdDto)))
-                    .andDo(print())
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.cause", equalTo("Message: 'Author's ORCID code must only have digits of length of 16!', rejected value: '" + authorIdDto.getOrcidId() + "'")));
+            shouldReturnInvalidFieldMessageWhenPost(
+                    toJson(authorIdDto),
+                    "Message: 'Author's ORCID code must only have digits of length of 16!', rejected value: '" + authorIdDto.getOrcidId() + "'"
+            );
         }
 
 
         @Test
         void givenShortOrcidId_whenCreateAuthor_thenReturnOrcidIdErrorMessage() throws Exception {
-            final AuthorIdDto authorIdDto = new AuthorIdDto(VALID_FIRST_NAME, VALID_LAST_NAME, VALID_ORCID_ID.substring(VALID_ORCID_ID.length() - 1));
-            final Author author = new Author(authorIdDto.getOrcidId(), authorIdDto.getFirstName(), authorIdDto.getLastName(), Collections.emptySet());
+            authorIdDto = new AuthorIdDto(VALID_FIRST_NAME, VALID_LAST_NAME, VALID_ORCID_ID.substring(VALID_ORCID_ID.length() - 1));
+            author = new Author(authorIdDto.getOrcidId(), authorIdDto.getFirstName(), authorIdDto.getLastName(), Collections.emptySet());
 
             when(authorRepository.save(any(Author.class))).thenReturn(author);
 
-            mockMvc.perform(post("/authors")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(toJson(authorIdDto)))
-                    .andDo(print())
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.cause", equalTo("Message: 'Author's ORCID code must only have digits of length of 16!', rejected value: '" + authorIdDto.getOrcidId() + "'")));
+            shouldReturnInvalidFieldMessageWhenPost(
+                    toJson(authorIdDto),
+                    "Message: 'Author's ORCID code must only have digits of length of 16!', rejected value: '" + authorIdDto.getOrcidId() + "'"
+            );
         }
 
 
         @Test
         void givenOrcidIdWithInvalidCharacters_whenCreateAuthor_thenReturnOrcidIdErrorMessage() throws Exception {
-            final AuthorIdDto authorIdDto = new AuthorIdDto(VALID_FIRST_NAME, VALID_LAST_NAME, VALID_ORCID_ID.replace(VALID_ORCID_ID.charAt(0), 'A'));
-            final Author author = new Author(authorIdDto.getOrcidId(), authorIdDto.getFirstName(), authorIdDto.getLastName(), Collections.emptySet());
+            authorIdDto = new AuthorIdDto(VALID_FIRST_NAME, VALID_LAST_NAME, VALID_ORCID_ID.replace(VALID_ORCID_ID.charAt(0), 'A'));
+            author = new Author(authorIdDto.getOrcidId(), authorIdDto.getFirstName(), authorIdDto.getLastName(), Collections.emptySet());
 
             when(authorRepository.save(any(Author.class))).thenReturn(author);
 
-            mockMvc.perform(post("/authors")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(toJson(authorIdDto)))
-                    .andDo(print())
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.cause", equalTo("Message: 'Author's ORCID code must only have digits of length of 16!', rejected value: '" + authorIdDto.getOrcidId() + "'")));
+            shouldReturnInvalidFieldMessageWhenPost(
+                    toJson(authorIdDto),
+                    "Message: 'Author's ORCID code must only have digits of length of 16!', rejected value: '" + authorIdDto.getOrcidId() + "'"
+            );
         }
 
 
         @Test
         void givenLongFirstName_whenCreateAuthor_thenReturnFirstNameErrorMessage() throws Exception {
-            final AuthorIdDto authorIdDto = new AuthorIdDto(VALID_FIRST_NAME.repeat(10), VALID_LAST_NAME, VALID_ORCID_ID);
-            final Author author = new Author(authorIdDto.getOrcidId(), authorIdDto.getFirstName(), authorIdDto.getLastName(), Collections.emptySet());
+            authorIdDto = new AuthorIdDto(VALID_FIRST_NAME.repeat(10), VALID_LAST_NAME, VALID_ORCID_ID);
+            author = new Author(authorIdDto.getOrcidId(), authorIdDto.getFirstName(), authorIdDto.getLastName(), Collections.emptySet());
 
             when(authorRepository.save(any(Author.class))).thenReturn(author);
 
-            mockMvc.perform(post("/authors")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(toJson(authorIdDto)))
-                    .andDo(print())
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.cause", equalTo("Message: 'Author's first name may only contain up to 45 letters!', rejected value: '" + authorIdDto.getFirstName() + "'")));
+            shouldReturnInvalidFieldMessageWhenPost(
+                    toJson(authorIdDto),
+                    "Message: 'Author's first name may only contain up to 45 letters!', rejected value: '" + authorIdDto.getFirstName() + "'"
+            );
         }
 
 
         @Test
         void givenFirstNameWithInvalidCharacters_whenCreateAuthor_thenReturnFirstNameErrorMessage() throws Exception {
-            final AuthorIdDto authorIdDto = new AuthorIdDto(VALID_FIRST_NAME + "_1", VALID_LAST_NAME, VALID_ORCID_ID);
-            final Author author = new Author(authorIdDto.getOrcidId(), authorIdDto.getFirstName(), authorIdDto.getLastName(), Collections.emptySet());
+            authorIdDto = new AuthorIdDto(VALID_FIRST_NAME + "_1", VALID_LAST_NAME, VALID_ORCID_ID);
+            author = new Author(authorIdDto.getOrcidId(), authorIdDto.getFirstName(), authorIdDto.getLastName(), Collections.emptySet());
 
             when(authorRepository.save(any(Author.class))).thenReturn(author);
 
-            mockMvc.perform(post("/authors")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(toJson(authorIdDto)))
-                    .andDo(print())
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.cause", equalTo("Message: 'Author's first name may only contain up to 45 letters!', rejected value: '" + authorIdDto.getFirstName() + "'")));
+            shouldReturnInvalidFieldMessageWhenPost(
+                    toJson(authorIdDto),
+                    "Message: 'Author's first name may only contain up to 45 letters!', rejected value: '" + authorIdDto.getFirstName() + "'"
+            );
         }
 
 
         @Test
         void givenLongLastName_whenCreateAuthor_thenReturnLastNameErrorMessage() throws Exception {
             final AuthorIdDto authorIdDto = new AuthorIdDto(VALID_FIRST_NAME, VALID_LAST_NAME.repeat(10), VALID_ORCID_ID);
-            final Author author = new Author(authorIdDto.getOrcidId(), authorIdDto.getFirstName(), authorIdDto.getLastName(), Collections.emptySet());
+            author = new Author(authorIdDto.getOrcidId(), authorIdDto.getFirstName(), authorIdDto.getLastName(), Collections.emptySet());
 
             when(authorRepository.save(any(Author.class))).thenReturn(author);
 
-            mockMvc.perform(post("/authors")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(toJson(authorIdDto)))
-                    .andDo(print())
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.cause", equalTo("Message: 'Author's last name may only contain up to 45 letters!', rejected value: '" + authorIdDto.getLastName() + "'")));
+            shouldReturnInvalidFieldMessageWhenPost(
+                    toJson(authorIdDto),
+                    "Message: 'Author's last name may only contain up to 45 letters!', rejected value: '" + authorIdDto.getLastName() + "'"
+            );
         }
 
 
         @Test
         void givenLastNameWithInvalidCharacters_whenCreateAuthor_thenReturnLastNameErrorMessage() throws Exception {
             final AuthorIdDto authorIdDto = new AuthorIdDto(VALID_FIRST_NAME, VALID_LAST_NAME + "_1", VALID_ORCID_ID);
-            final Author author = new Author(authorIdDto.getOrcidId(), authorIdDto.getFirstName(), authorIdDto.getLastName(), Collections.emptySet());
+            author = new Author(authorIdDto.getOrcidId(), authorIdDto.getFirstName(), authorIdDto.getLastName(), Collections.emptySet());
 
+            when(authorRepository.save(any(Author.class))).thenReturn(author);
+
+            shouldReturnInvalidFieldMessageWhenPost(
+                    toJson(authorIdDto),
+                    "Message: 'Author's last name may only contain up to 45 letters!', rejected value: '" + authorIdDto.getLastName() + "'"
+            );
+        }
+
+
+        @Test
+        void givenExistingValidOrcidId_whenCreateAuthor_thenReturnAuthorAlreadyExistsMessage() throws Exception {
             when(authorRepository.save(any(Author.class))).thenReturn(author);
 
             mockMvc.perform(post("/authors")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(toJson(authorIdDto)))
                     .andDo(print())
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.cause", equalTo("Message: 'Author's last name may only contain up to 45 letters!', rejected value: '" + authorIdDto.getLastName() + "'")));
+                    .andExpect(status().isConflict())
+                    .andExpect(jsonPath("$.cause", equalTo("Author with ORCID code of " + authorIdDto.getOrcidId() + " already exists!")));
         }
     }
 
@@ -358,21 +362,15 @@ class AuthorControllerTest {
 
 //    ============================================== PUT author ====================================================
 
+//        TODO: update PUT tests and create delete tests
 
         @Test
         void givenValidAuthorDataDto_whenUpdateAuthorData_thenReturnUpdatedAuthorDto() throws Exception {
-            final Author author = new Author(VALID_ORCID_ID, VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
-            final Book book = new Book(VALID_ISBN_ID, VALID_TITLE, new HashSet<>(), null);
-            final Publisher publisher = new Publisher(VALID_ID, VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, new HashSet<>());
-
-            author.addBook(book);
-            book.updatePublisher(publisher);
 
             final int repeatTimes = 2;
             final AuthorDataDto authorDataDto = new AuthorDataDto(author.getFirstName().repeat(repeatTimes), author.getLastName().repeat(repeatTimes));
             final Author updatedAuthor = new Author(author.getOrcidId(), authorDataDto.getFirstName(), authorDataDto.getLastName(), author.getBooks());
 
-            when(authorRepository.findById(anyString())).thenReturn(Optional.of(author));
             when(authorRepository.save(any(Author.class))).thenReturn(updatedAuthor);
 
             mockMvc.perform(put("/authors/" + author.getOrcidId())
@@ -397,18 +395,11 @@ class AuthorControllerTest {
 
         @Test
         void givenLongFirstName_whenUpdateAuthorData_thenReturnFirstNameErrorMessage() throws Exception {
-            final Author author = new Author(VALID_ORCID_ID, VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
-            final Book book = new Book(VALID_ISBN_ID, VALID_TITLE, new HashSet<>(), null);
-            final Publisher publisher = new Publisher(VALID_ID, VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, new HashSet<>());
-
-            author.addBook(book);
-            book.updatePublisher(publisher);
 
             final int repeatTimes = 10;
             final AuthorDataDto authorDataDto = new AuthorDataDto(author.getFirstName().repeat(repeatTimes), author.getLastName());
             final Author updatedAuthor = new Author(author.getOrcidId(), authorDataDto.getFirstName(), authorDataDto.getLastName(), author.getBooks());
 
-            when(authorRepository.findById(anyString())).thenReturn(Optional.of(author));
             when(authorRepository.save(any(Author.class))).thenReturn(updatedAuthor);
 
             mockMvc.perform(put("/authors/" + author.getOrcidId())
@@ -422,17 +413,10 @@ class AuthorControllerTest {
 
         @Test
         void givenFirstNameWithInvalidCharacters_whenUpdateAuthorData_thenReturnFirstNameErrorMessage() throws Exception {
-            final Author author = new Author(VALID_ORCID_ID, VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
-            final Book book = new Book(VALID_ISBN_ID, VALID_TITLE, new HashSet<>(), null);
-            final Publisher publisher = new Publisher(VALID_ID, VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, new HashSet<>());
-
-            author.addBook(book);
-            book.updatePublisher(publisher);
 
             final AuthorDataDto authorDataDto = new AuthorDataDto(author.getFirstName() + "_1", author.getLastName());
             final Author updatedAuthor = new Author(author.getOrcidId(), authorDataDto.getFirstName(), authorDataDto.getLastName(), author.getBooks());
 
-            when(authorRepository.findById(anyString())).thenReturn(Optional.of(author));
             when(authorRepository.save(any(Author.class))).thenReturn(updatedAuthor);
 
             mockMvc.perform(put("/authors/" + author.getOrcidId())
@@ -446,18 +430,11 @@ class AuthorControllerTest {
 
         @Test
         void givenLongLastName_whenUpdateAuthorData_thenReturnLastNameErrorMessage() throws Exception {
-            final Author author = new Author(VALID_ORCID_ID, VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
-            final Book book = new Book(VALID_ISBN_ID, VALID_TITLE, new HashSet<>(), null);
-            final Publisher publisher = new Publisher(VALID_ID, VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, new HashSet<>());
-
-            author.addBook(book);
-            book.updatePublisher(publisher);
 
             final int repeatTimes = 10;
             final AuthorDataDto authorDataDto = new AuthorDataDto(author.getFirstName(), author.getLastName().repeat(repeatTimes));
             final Author updatedAuthor = new Author(author.getOrcidId(), authorDataDto.getFirstName(), authorDataDto.getLastName(), author.getBooks());
 
-            when(authorRepository.findById(anyString())).thenReturn(Optional.of(author));
             when(authorRepository.save(any(Author.class))).thenReturn(updatedAuthor);
 
             mockMvc.perform(put("/authors/" + author.getOrcidId())
@@ -471,17 +448,10 @@ class AuthorControllerTest {
 
         @Test
         void givenLastNameWithInvalidCharacters_whenUpdateAuthorData_thenReturnLastNameErrorMessage() throws Exception {
-            final Author author = new Author(VALID_ORCID_ID, VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
-            final Book book = new Book(VALID_ISBN_ID, VALID_TITLE, new HashSet<>(), null);
-            final Publisher publisher = new Publisher(VALID_ID, VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, new HashSet<>());
-
-            author.addBook(book);
-            book.updatePublisher(publisher);
 
             final AuthorDataDto authorDataDto = new AuthorDataDto(author.getFirstName(), author.getLastName() + "_1");
             final Author updatedAuthor = new Author(author.getOrcidId(), authorDataDto.getFirstName(), authorDataDto.getLastName(), author.getBooks());
 
-            when(authorRepository.findById(anyString())).thenReturn(Optional.of(author));
             when(authorRepository.save(any(Author.class))).thenReturn(updatedAuthor);
 
             mockMvc.perform(put("/authors/" + author.getOrcidId())
@@ -495,17 +465,10 @@ class AuthorControllerTest {
 
         @Test
         void givenLongOrcidId_whenUpdateAuthorData_thenReturnOrcidIdErrorMessage() throws Exception {
-            final Author author = new Author(VALID_ORCID_ID.repeat(2), VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
-            final Book book = new Book(VALID_ISBN_ID, VALID_TITLE, new HashSet<>(), null);
-            final Publisher publisher = new Publisher(VALID_ID, VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, new HashSet<>());
-
-            author.addBook(book);
-            book.updatePublisher(publisher);
 
             final AuthorDataDto authorDataDto = new AuthorDataDto(author.getFirstName(), author.getLastName());
             final Author updatedAuthor = new Author(author.getOrcidId(), authorDataDto.getFirstName(), authorDataDto.getLastName(), author.getBooks());
 
-            when(authorRepository.findById(anyString())).thenReturn(Optional.of(author));
             when(authorRepository.save(any(Author.class))).thenReturn(updatedAuthor);
 
             mockMvc.perform(put("/authors/" + author.getOrcidId())
@@ -519,17 +482,10 @@ class AuthorControllerTest {
 
         @Test
         void givenShortOrcidId_whenUpdateAuthorData_thenReturnOrcidIdErrorMessage() throws Exception {
-            final Author author = new Author(VALID_ORCID_ID.substring(VALID_ORCID_ID.length() - 1), VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
-            final Book book = new Book(VALID_ISBN_ID, VALID_TITLE, new HashSet<>(), null);
-            final Publisher publisher = new Publisher(VALID_ID, VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, new HashSet<>());
-
-            author.addBook(book);
-            book.updatePublisher(publisher);
 
             final AuthorDataDto authorDataDto = new AuthorDataDto(author.getFirstName(), author.getLastName());
             final Author updatedAuthor = new Author(author.getOrcidId(), authorDataDto.getFirstName(), authorDataDto.getLastName(), author.getBooks());
 
-            when(authorRepository.findById(anyString())).thenReturn(Optional.of(author));
             when(authorRepository.save(any(Author.class))).thenReturn(updatedAuthor);
 
             mockMvc.perform(put("/authors/" + author.getOrcidId())
@@ -543,17 +499,10 @@ class AuthorControllerTest {
 
         @Test
         void givenOrcidIdWithInvalidCharacters_whenUpdateAuthorData_thenReturnOrcidIdErrorMessage() throws Exception {
-            final Author author = new Author(VALID_ORCID_ID.replace(VALID_ORCID_ID.charAt(0), 'A'), VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
-            final Book book = new Book(VALID_ISBN_ID, VALID_TITLE, new HashSet<>(), null);
-            final Publisher publisher = new Publisher(VALID_ID, VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, new HashSet<>());
-
-            author.addBook(book);
-            book.updatePublisher(publisher);
 
             final AuthorDataDto authorDataDto = new AuthorDataDto(author.getFirstName(), author.getLastName());
             final Author updatedAuthor = new Author(author.getOrcidId(), authorDataDto.getFirstName(), authorDataDto.getLastName(), author.getBooks());
 
-            when(authorRepository.findById(anyString())).thenReturn(Optional.of(author));
             when(authorRepository.save(any(Author.class))).thenReturn(updatedAuthor);
 
             mockMvc.perform(put("/authors/" + author.getOrcidId())
@@ -567,17 +516,10 @@ class AuthorControllerTest {
 
         @Test
         void givenUnknownValidOrcidId_whenUpdateAuthorData_thenReturnAuthorNotFoundMessage() throws Exception {
-            final Author author = new Author(VALID_ORCID_ID, VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
-            final Book book = new Book(VALID_ISBN_ID, VALID_TITLE, new HashSet<>(), null);
-            final Publisher publisher = new Publisher(VALID_ID, VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, new HashSet<>());
-
-            author.addBook(book);
-            book.updatePublisher(publisher);
 
             final AuthorDataDto authorDataDto = new AuthorDataDto(author.getFirstName(), author.getLastName());
             final Author updatedAuthor = new Author(author.getOrcidId(), authorDataDto.getFirstName(), authorDataDto.getLastName(), author.getBooks());
 
-            when(authorRepository.findById(anyString())).thenReturn(Optional.of(author));
             when(authorRepository.save(any(Author.class))).thenReturn(updatedAuthor);
 
             final String unknownValidOrcidId = author.getOrcidId().replace(author.getOrcidId().charAt(0), (char) (author.getOrcidId().charAt(0) + 1));
