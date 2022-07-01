@@ -10,9 +10,6 @@ import javax.validation.constraints.Pattern;
 @JsonPropertyOrder({"isbnId", "title", "publisher"})
 public class BookIdDto extends BookDataDto {
 
-    //    org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Cannot construct instance of ...
-    private static final String DEFAULT_ISBN_ID = "0000000000000";
-
     @Pattern(regexp = "\\d{13}", message = "Book's ISBN code must only have digits of length of 13!")
     private final String isbnId;
 

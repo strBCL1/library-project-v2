@@ -6,8 +6,6 @@ import javax.validation.constraints.Pattern;
 
 @Getter
 public class AuthorDataDto {
-        private static final String DEFAULT_FIRST_NAME = "defaultFirstName";
-        private static final String DEFAULT_LAST_NAME = "defaultLastName";
 
         @Pattern(regexp = "[a-zA-Z]{0,45}", message = "Author's first name may only contain up to 45 letters!")
         private final String firstName;
@@ -18,11 +16,5 @@ public class AuthorDataDto {
         public AuthorDataDto(String firstName, String lastName) {
                 this.firstName = firstName;
                 this.lastName = lastName;
-        }
-
-//        org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Cannot construct instance of ...
-        protected AuthorDataDto() {
-                this.firstName = DEFAULT_FIRST_NAME;
-                this.lastName = DEFAULT_LAST_NAME;
         }
 }

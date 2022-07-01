@@ -1,5 +1,6 @@
 package com.example.libraryprojectv2.domain.author.controller;
 
+import com.example.libraryprojectv2.configuration.response.cause.Cause;
 import com.example.libraryprojectv2.configuration.response.handler.RestExceptionHandler;
 import com.example.libraryprojectv2.domain.author.dao.AuthorRepository;
 import com.example.libraryprojectv2.domain.author.dto.AuthorDataDto;
@@ -12,6 +13,7 @@ import com.example.libraryprojectv2.domain.mapper.Mapper;
 import com.example.libraryprojectv2.domain.publisher.model.Publisher;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -21,14 +23,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -87,6 +87,9 @@ class AuthorControllerTest {
     @SpyBean
     private MethodValidationPostProcessor methodValidationPostProcessor;
 
+    @SpyBean
+    private Cause cause;
+
     private ObjectMapper objectMapper = new ObjectMapper();
 
 
@@ -100,6 +103,18 @@ class AuthorControllerTest {
         book.updatePublisher(publisher);
 
         when(authorRepository.findById(author.getOrcidId())).thenReturn(Optional.of(author));
+    }
+
+
+    private void sendInvalidJson(final boolean isPutRequest, final String URL, final String body, final String cause) throws Exception {
+        final MockHttpServletRequestBuilder method = (isPutRequest ? put(URL) : post(URL))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body);
+
+        mockMvc.perform(method)
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.cause", equalTo(cause)));
     }
 
 
@@ -213,6 +228,17 @@ class AuthorControllerTest {
     class AuthorControllerPostTest {
 
 
+        @BeforeAll
+        void setUp() {
+            final List<String> causesList = Arrays.asList(
+                    cause.noDataSpecified(),
+                    cause.fieldIsNotSpecified(),
+                    cause.specifiedArrayMustNotBeEmpty(),
+                    cause.jsonSyntaxError()
+            );
+        }
+
+
         private void shouldReturnInvalidFieldMessageWhenPost(final String body, final String cause) throws Exception {
             mockMvc.perform(post("/authors")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -253,7 +279,7 @@ class AuthorControllerTest {
 
             shouldReturnInvalidFieldMessageWhenPost(
                     toJson(authorIdDto),
-                    "Message: 'Author's ORCID code must only have digits of length of 16!', rejected value: '" + authorIdDto.getOrcidId() + "'"
+                    "Author's ORCID code must only have digits of length of 16!, rejected value: '" + authorIdDto.getOrcidId() + "'"
             );
         }
 
@@ -267,7 +293,7 @@ class AuthorControllerTest {
 
             shouldReturnInvalidFieldMessageWhenPost(
                     toJson(authorIdDto),
-                    "Message: 'Author's ORCID code must only have digits of length of 16!', rejected value: '" + authorIdDto.getOrcidId() + "'"
+                    "Author's ORCID code must only have digits of length of 16!, rejected value: '" + authorIdDto.getOrcidId() + "'"
             );
         }
 
@@ -281,7 +307,7 @@ class AuthorControllerTest {
 
             shouldReturnInvalidFieldMessageWhenPost(
                     toJson(authorIdDto),
-                    "Message: 'Author's ORCID code must only have digits of length of 16!', rejected value: '" + authorIdDto.getOrcidId() + "'"
+                    "Author's ORCID code must only have digits of length of 16!, rejected value: '" + authorIdDto.getOrcidId() + "'"
             );
         }
 
@@ -295,7 +321,7 @@ class AuthorControllerTest {
 
             shouldReturnInvalidFieldMessageWhenPost(
                     toJson(authorIdDto),
-                    "Message: 'Author's first name may only contain up to 45 letters!', rejected value: '" + authorIdDto.getFirstName() + "'"
+                    "Author's first name may only contain up to 45 letters!, rejected value: '" + authorIdDto.getFirstName() + "'"
             );
         }
 
@@ -309,7 +335,7 @@ class AuthorControllerTest {
 
             shouldReturnInvalidFieldMessageWhenPost(
                     toJson(authorIdDto),
-                    "Message: 'Author's first name may only contain up to 45 letters!', rejected value: '" + authorIdDto.getFirstName() + "'"
+                    "Author's first name may only contain up to 45 letters!, rejected value: '" + authorIdDto.getFirstName() + "'"
             );
         }
 
@@ -323,7 +349,7 @@ class AuthorControllerTest {
 
             shouldReturnInvalidFieldMessageWhenPost(
                     toJson(authorIdDto),
-                    "Message: 'Author's last name may only contain up to 45 letters!', rejected value: '" + authorIdDto.getLastName() + "'"
+                    "Author's last name may only contain up to 45 letters!, rejected value: '" + authorIdDto.getLastName() + "'"
             );
         }
 
@@ -337,7 +363,7 @@ class AuthorControllerTest {
 
             shouldReturnInvalidFieldMessageWhenPost(
                     toJson(authorIdDto),
-                    "Message: 'Author's last name may only contain up to 45 letters!', rejected value: '" + authorIdDto.getLastName() + "'"
+                    "Author's last name may only contain up to 45 letters!, rejected value: '" + authorIdDto.getLastName() + "'"
             );
         }
 
@@ -407,7 +433,7 @@ class AuthorControllerTest {
                             .content(toJson(authorDataDto)))
                     .andDo(print())
                     .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.cause", equalTo("Message: 'Author's first name may only contain up to 45 letters!', rejected value: '" + authorDataDto.getFirstName() + "'")));
+                    .andExpect(jsonPath("$.cause", equalTo("Author's first name may only contain up to 45 letters!, rejected value: '" + authorDataDto.getFirstName() + "'")));
         }
 
 
@@ -424,7 +450,7 @@ class AuthorControllerTest {
                             .content(toJson(authorDataDto)))
                     .andDo(print())
                     .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.cause", equalTo("Message: 'Author's first name may only contain up to 45 letters!', rejected value: '" + authorDataDto.getFirstName() + "'")));
+                    .andExpect(jsonPath("$.cause", equalTo("Author's first name may only contain up to 45 letters!, rejected value: '" + authorDataDto.getFirstName() + "'")));
         }
 
 
@@ -442,7 +468,7 @@ class AuthorControllerTest {
                             .content(toJson(authorDataDto)))
                     .andDo(print())
                     .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.cause", equalTo("Message: 'Author's last name may only contain up to 45 letters!', rejected value: '" + authorDataDto.getLastName() + "'")));
+                    .andExpect(jsonPath("$.cause", equalTo("Author's last name may only contain up to 45 letters!, rejected value: '" + authorDataDto.getLastName() + "'")));
         }
 
 
@@ -459,7 +485,7 @@ class AuthorControllerTest {
                             .content(toJson(authorDataDto)))
                     .andDo(print())
                     .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.cause", equalTo("Message: 'Author's last name may only contain up to 45 letters!', rejected value: '" + authorDataDto.getLastName() + "'")));
+                    .andExpect(jsonPath("$.cause", equalTo("Author's last name may only contain up to 45 letters!, rejected value: '" + authorDataDto.getLastName() + "'")));
         }
 
 
