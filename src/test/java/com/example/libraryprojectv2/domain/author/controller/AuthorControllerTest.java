@@ -56,6 +56,10 @@ class AuthorControllerTest {
     private final static String VALID_CITY = "city";
     private final static String VALID_COUNTRY = "country";
 
+    private final Author author = new Author(VALID_ORCID_ID, VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
+    private final Book book = new Book(VALID_ISBN_ID, VALID_TITLE, new HashSet<>(), null);
+    private final Publisher publisher = new Publisher(VALID_ID, VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, new HashSet<>());
+
     private MockMvc mockMvc;
 
     @Autowired
@@ -89,6 +93,11 @@ class AuthorControllerTest {
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
                 .build();
+
+        author.addBook(book);
+        book.updatePublisher(publisher);
+
+        when(authorRepository.findById(author.getOrcidId())).thenReturn(Optional.of(author));
     }
 
     @AfterEach
@@ -102,19 +111,19 @@ class AuthorControllerTest {
     class AuthorControllerGetTest {
 
 
+        private void shouldReturnInvalidOrcidIdMessageWhenSendGetRequest(final String URL) throws Exception {
+            mockMvc.perform(get(URL))
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.cause", equalTo("Author's ORCID code must only have digits of length of 16!")));
+        }
+
+
 //    ======================================= GET author by ORCID id =======================================
 
 
         @Test
         void givenValidOrcidId_whenGetAuthorByOrcidId_thenReturnValidAuthor() throws Exception {
-            final Author author = new Author(VALID_ORCID_ID, VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
-            final Book book = new Book(VALID_ISBN_ID, VALID_TITLE, new HashSet<>(), null);
-            final Publisher publisher = new Publisher(VALID_ID, VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, new HashSet<>());
-
-            author.addBook(book);
-            book.updatePublisher(publisher);
-
-            when(authorRepository.findById(anyString())).thenReturn(Optional.of(author));
 
             mockMvc.perform(get("/authors/" + author.getOrcidId()))
                     .andDo(print())
@@ -136,70 +145,30 @@ class AuthorControllerTest {
 
         @Test
         void givenShortOrcidId_whenGetAuthorByOrcidId_thenReturnOrcidIdErrorMessage() throws Exception {
-            final Author author = new Author(VALID_ORCID_ID.substring(VALID_ORCID_ID.length() - 1), VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
-            final Book book = new Book(VALID_ISBN_ID, VALID_TITLE, new HashSet<>(), null);
-            final Publisher publisher = new Publisher(VALID_ID, VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, new HashSet<>());
-
-            author.addBook(book);
-            book.updatePublisher(publisher);
-
-            when(authorRepository.findById(anyString())).thenReturn(Optional.of(author));
-
-            mockMvc.perform(get("/authors/" + author.getOrcidId()))
-                    .andDo(print())
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.cause", equalTo("Author's ORCID code must only have digits of length of 16!")));
+            shouldReturnInvalidOrcidIdMessageWhenSendGetRequest("/authors/" +
+                    VALID_ORCID_ID.substring(VALID_ORCID_ID.length() - 1));
         }
 
 
         @Test
         void givenLongOrcidId_whenGetAuthorByOrcidId_thenReturnOrcidIdErrorMessage() throws Exception {
-            final Author author = new Author(VALID_ORCID_ID.repeat(2), VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
-            final Book book = new Book(VALID_ISBN_ID, VALID_TITLE, new HashSet<>(), null);
-            final Publisher publisher = new Publisher(VALID_ID, VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, new HashSet<>());
-
-            author.addBook(book);
-            book.updatePublisher(publisher);
-
-            when(authorRepository.findById(anyString())).thenReturn(Optional.of(author));
-
-            mockMvc.perform(get("/authors/" + author.getOrcidId()))
-                    .andDo(print())
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.cause", equalTo("Author's ORCID code must only have digits of length of 16!")));
+            shouldReturnInvalidOrcidIdMessageWhenSendGetRequest("/authors/" +
+                    VALID_ORCID_ID.repeat(2));
         }
 
 
         @Test
         void givenOrcidIdWithInvalidCharacters_whenGetAuthorByOrcidId_thenReturnOrcidIdErrorMessage() throws Exception {
-            final Author author = new Author(VALID_ORCID_ID.replace(VALID_ORCID_ID.charAt(0), 'A'), VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
-            final Book book = new Book(VALID_ISBN_ID, VALID_TITLE, new HashSet<>(), null);
-            final Publisher publisher = new Publisher(VALID_ID, VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, new HashSet<>());
-
-            author.addBook(book);
-            book.updatePublisher(publisher);
-
-            when(authorRepository.findById(anyString())).thenReturn(Optional.of(author));
-
-            mockMvc.perform(get("/authors/" + author.getOrcidId()))
-                    .andDo(print())
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.cause", equalTo("Author's ORCID code must only have digits of length of 16!")));
+            shouldReturnInvalidOrcidIdMessageWhenSendGetRequest("/authors/" +
+                    VALID_ORCID_ID.replace(VALID_ORCID_ID.charAt(0), 'A'));
         }
 
 
         @Test
         void givenUnknownValidOrcidId_whenGetAuthorByOrcidId_thenReturnAuthorNotFoundErrorMessage() throws Exception {
-            final Author author = new Author(VALID_ORCID_ID, VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
-            final Book book = new Book(VALID_ISBN_ID, VALID_TITLE, new HashSet<>(), null);
-            final Publisher publisher = new Publisher(VALID_ID, VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, new HashSet<>());
-
-            author.addBook(book);
-            book.updatePublisher(publisher);
-
-            when(authorRepository.findById(author.getOrcidId())).thenReturn(Optional.of(author));
-
-            final String unknownValidOrcidId = author.getOrcidId().replace(author.getOrcidId().charAt(0), (char) (author.getOrcidId().charAt(0) + 1));
+            final String unknownValidOrcidId = author
+                    .getOrcidId()
+                    .replace(author.getOrcidId().charAt(0), (char) (author.getOrcidId().charAt(0) + 1));
 
             mockMvc.perform(get("/authors/" + unknownValidOrcidId))
                     .andDo(print())
@@ -215,8 +184,6 @@ class AuthorControllerTest {
         void givenAuthors_whenGetAuthors_thenReturnAuthors() throws Exception {
             final Author author1 = new Author(VALID_ORCID_ID, VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
             final Author author2 = new Author(VALID_ORCID_ID.replace(VALID_ORCID_ID.charAt(0), (char) (VALID_ORCID_ID.charAt(0) + 1)), VALID_FIRST_NAME, VALID_LAST_NAME, new HashSet<>());
-            final Book book = new Book(VALID_ISBN_ID, VALID_TITLE, new HashSet<>(), null);
-            final Publisher publisher = new Publisher(VALID_ID, VALID_NAME, VALID_ADDRESS, VALID_CITY, VALID_COUNTRY, new HashSet<>());
 
             author1.addBook(book);
             author2.addBook(book);
@@ -610,7 +577,7 @@ class AuthorControllerTest {
             final AuthorDataDto authorDataDto = new AuthorDataDto(author.getFirstName(), author.getLastName());
             final Author updatedAuthor = new Author(author.getOrcidId(), authorDataDto.getFirstName(), authorDataDto.getLastName(), author.getBooks());
 
-            when(authorRepository.findById(author.getOrcidId())).thenReturn(Optional.of(author));
+            when(authorRepository.findById(anyString())).thenReturn(Optional.of(author));
             when(authorRepository.save(any(Author.class))).thenReturn(updatedAuthor);
 
             final String unknownValidOrcidId = author.getOrcidId().replace(author.getOrcidId().charAt(0), (char) (author.getOrcidId().charAt(0) + 1));
