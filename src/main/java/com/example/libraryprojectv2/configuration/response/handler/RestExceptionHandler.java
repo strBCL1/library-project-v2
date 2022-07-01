@@ -19,11 +19,14 @@ import static java.text.MessageFormat.format;
 @RestControllerAdvice
 public class RestExceptionHandler {
 
+
     private final Cause cause;
+
 
     public RestExceptionHandler(Cause cause) {
         this.cause = cause;
     }
+
 
     @ExceptionHandler(value = { EntityNotFoundException.class })
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -35,8 +38,25 @@ public class RestExceptionHandler {
     @ExceptionHandler(value = { ConstraintViolationException.class })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorMessage handleConstraintViolationException(ConstraintViolationException exception) {
-        final String cause = exception.getMessage();
-        return new ErrorMessage(cause.substring(cause.indexOf(": ") + 2, cause.indexOf("!") + 1));
+        final String message = exception.getMessage();
+
+        final String errorMessage;
+
+        if (message.matches("(?s).*\\bmust\\b.*\\bnot\\b.*\\bbe\\b.*\\bempty\\b.*")) {
+            errorMessage = cause.getIsEmptyOrInvalidObject();
+        }
+        else {
+            int messageBeginIndex = message.indexOf(": ") + 2;
+            int messageEndIndex = message.indexOf("!");
+
+            if (messageEndIndex == -1) {
+                messageEndIndex = message.length();
+            }
+
+            errorMessage = message.substring(messageBeginIndex, messageEndIndex + 1);
+        }
+
+        return new ErrorMessage(errorMessage);
 
 //        Returns user's rejected values
 //        final List<String> invalidValues = exception
@@ -45,8 +65,8 @@ public class RestExceptionHandler {
 //                .map(constraintViolation -> constraintViolation.getInvalidValue().toString())
 //                .toList();
 //
-//        final String cause = exception.getMessage();
-//        final String message = cause.substring(cause.indexOf(": ") + 2, cause.indexOf("!") + 1);
+//        final String message = exception.getMessage();
+//        final String message = message.substring(message.indexOf(": ") + 2, message.indexOf("!") + 1);
 //
 //        return new ErrorMessage(
 //                format("''{0}'', rejected value(s): ''{1}''", message, invalidValues)
@@ -78,20 +98,20 @@ public class RestExceptionHandler {
         final String reason = exception.getMessage();
         final String errorMessage;
 
-        if (reason.matches("(?s).*\\bbody\\b.*\\bis\\b.*\\bmissing\\b.*") || reason.matches("(?s).*\\bno\\b.*\\bcontent\\b.*\\bto\\b.*\\bmap\\b.*")) {
-            errorMessage = cause.noDataSpecified();
+        if (reason.matches("(?s).*\\bbody\\b.*\\bis\\b.*\\bmissing\\b.*") ||
+                reason.matches("(?s).*\\bno\\b.*\\bcontent\\b.*\\bto\\b.*\\bmap\\b.*") ||
+                reason.matches("(?s).*\\bCannot\\b.*\\bdeserialize\\b.*List.*") ||
+                reason.matches("(?s).*\\bCannot\\b.*\\bdeserialize\\b.*Array.*")) {
+            errorMessage = cause.getIsEmptyOrInvalidObject();
         }
         else if (reason.matches("(?s).*\\bMissing\\b.*\\bcreator\\b.*\\bproperty\\b.*")) {
-            final int nullPropertyBeginIndex = reason.indexOf("\'");
-            final int nullPropertyEndIndex = reason.indexOf("\'", nullPropertyBeginIndex + 1) + 1;
-            final String nullPropertyName = reason.substring(nullPropertyBeginIndex, nullPropertyEndIndex);
-            errorMessage = nullPropertyName + cause.fieldIsNotSpecified();
-        }
-        else if (reason.matches("(?s).*\\bCannot\\b.*\\bdeserialize\\b.*\\bvalue\\b.*\\bfrom\\b.*\\bArray\\b.*")) {
-            errorMessage = cause.specifiedArrayMustNotBeEmpty();
+            final int nullPropertyNameBeginIndex = reason.indexOf("\'");
+            final int nullPropertyNameEndIndex = reason.indexOf("\'", nullPropertyNameBeginIndex + 1) + 1;
+            final String nullPropertyName = reason.substring(nullPropertyNameBeginIndex, nullPropertyNameEndIndex);
+            errorMessage = nullPropertyName + cause.getFieldIsNotInitialized();
         }
         else {
-            errorMessage = cause.jsonSyntaxError();
+            errorMessage = cause.getJsonSyntaxError();
         }
 
         return new ErrorMessage(errorMessage);

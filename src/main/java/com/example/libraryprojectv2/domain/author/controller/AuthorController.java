@@ -10,6 +10,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.util.List;
@@ -42,7 +43,7 @@ public class AuthorController {
 
     @PutMapping("/{orcid-id}/books")
     @ResponseStatus(HttpStatus.OK)
-    public AuthorDto updateBooks(@RequestBody @NotNull @Valid final List<BookIsbnIdDto> bookIsbnIdDtos,
+    public AuthorDto updateBooks(@RequestBody @NotEmpty @Valid final List<BookIsbnIdDto> bookIsbnIdDtos,
                                  @PathVariable("orcid-id") @Pattern(regexp = "\\d{16}", message = "Author's ORCID code must only have digits of length of 16!") final String orcidId) {
         return authorService.updateBooks(bookIsbnIdDtos, orcidId);
     }
