@@ -800,6 +800,72 @@ class AuthorControllerTest {
     }
 
 
+    @Nested
+    class AuthorControllerDeleteTest {
+
+
+        @BeforeEach
+        void setUp() {
+            when(authorRepository.findById(VALID_ORCID_ID)).thenReturn(Optional.of(author));
+            when(authorRepository.existsById(VALID_ORCID_ID)).thenReturn(true);
+            when(bookRepository.findAll()).thenReturn(booksList);
+        }
+
+
+        private void shouldReturnInvalidOrcidIdMessageWhenDelete(final String URL) throws Exception {
+            mockMvc.perform(delete(URL))
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.cause", equalTo("Author's ORCID code must only have digits of length of 16!")));
+        }
+
+
+//    ======================================= DELETE author =======================================
+
+
+        @Test
+        void givenValidOrcidId_whenDeleteAuthor_thenReturnVoid() throws Exception {
+
+            mockMvc.perform(delete("/authors/" + author.getOrcidId()))
+                    .andDo(print())
+                    .andExpect(status().isNoContent());
+        }
+
+
+        @Test
+        void givenShortOrcidId_whenDeleteAuthor_thenReturnOrcidIdErrorMessage() throws Exception {
+            shouldReturnInvalidOrcidIdMessageWhenDelete("/authors/" +
+                    VALID_ORCID_ID.substring(VALID_ORCID_ID.length() - 1));
+        }
+
+
+        @Test
+        void givenLongOrcidId_whenDeleteAuthor_thenReturnOrcidIdErrorMessage() throws Exception {
+            shouldReturnInvalidOrcidIdMessageWhenDelete("/authors/" +
+                    VALID_ORCID_ID.repeat(2));
+        }
+
+
+        @Test
+        void givenOrcidIdWithInvalidCharacters_whenDeleteAuthor_thenReturnOrcidIdErrorMessage() throws Exception {
+            shouldReturnInvalidOrcidIdMessageWhenDelete("/authors/" +
+                    VALID_ORCID_ID.replace(VALID_ORCID_ID.charAt(0), 'A'));
+        }
+
+
+        @Test
+        void givenUnknownValidOrcidId_whenDeleteAuthor_thenReturnAuthorNotFoundErrorMessage() throws Exception {
+            final String unknownValidOrcidId = VALID_ORCID_ID
+                    .replace(VALID_ORCID_ID.charAt(0), (char) (VALID_ORCID_ID.charAt(0) + 1));
+
+            mockMvc.perform(delete("/authors/" + unknownValidOrcidId))
+                    .andDo(print())
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.cause", equalTo("Author with ORCID code of " + unknownValidOrcidId + " not found!")));
+        }
+    }
+
+
     private <T> String toJson(T authorAsDto) throws JsonProcessingException {
         return objectMapper.writeValueAsString(authorAsDto);
     }
