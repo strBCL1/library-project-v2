@@ -26,7 +26,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
         <!-- https://mvnrepository.com/artifact/io.springfox/springfox-swagger-ui -->
 <!--        Add 'spring.mvc.pathmatch.matching-strategy=ant_path_matcher' to 'application.properties'-->
 <!--        http://localhost:8080/swagger-ui.html#/ - link to the swagger-->
