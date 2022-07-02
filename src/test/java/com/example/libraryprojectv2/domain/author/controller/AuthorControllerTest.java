@@ -8,6 +8,7 @@ import com.example.libraryprojectv2.domain.author.dto.AuthorIdDto;
 import com.example.libraryprojectv2.domain.author.model.Author;
 import com.example.libraryprojectv2.domain.author.service.AuthorService;
 import com.example.libraryprojectv2.domain.book.dao.BookRepository;
+import com.example.libraryprojectv2.domain.book.dto.BookIsbnIdDto;
 import com.example.libraryprojectv2.domain.book.model.Book;
 import com.example.libraryprojectv2.domain.mapper.Mapper;
 import com.example.libraryprojectv2.domain.publisher.model.Publisher;
@@ -45,6 +46,8 @@ class AuthorControllerTest {
 
     private final static String VALID_ISBN_ID = "1111111111111";
     private final static String VALID_TITLE = "title";
+    private final static String NEW_ISBN_ID = VALID_ISBN_ID.replace(VALID_ISBN_ID.charAt(0), (char) (VALID_ISBN_ID.charAt(0) + 1));
+    private final static String NEW_TITLE = VALID_TITLE.repeat(2);
 
     private final static Long VALID_ID = 1L;
     private final static String VALID_NAME = "name";
@@ -59,7 +62,8 @@ class AuthorControllerTest {
 
     private AuthorDataDto authorDataDto = new AuthorDataDto(author.getFirstName().repeat(2), author.getLastName().repeat(2));
     private Author updatedAuthor = new Author(author.getOrcidId(), authorDataDto.getFirstName(), authorDataDto.getLastName(), author.getBooks());
-
+    private List<Book> booksList = new ArrayList<>();
+    private final Book newBook = new Book(NEW_ISBN_ID, NEW_TITLE, new HashSet<>(), null);
 
     private MockMvc mockMvc;
 
@@ -101,6 +105,12 @@ class AuthorControllerTest {
 
         author.addBook(book);
         book.updatePublisher(publisher);
+
+        author.addBook(newBook);
+        newBook.updatePublisher(publisher);
+
+        booksList.add(book);
+        booksList.add(newBook);
     }
 
 
@@ -134,7 +144,7 @@ class AuthorControllerTest {
                     .andExpect(jsonPath("$.orcidId", equalTo(author.getOrcidId())))
                     .andExpect(jsonPath("$.firstName", equalTo(author.getFirstName())))
                     .andExpect(jsonPath("$.lastName", equalTo(author.getLastName())))
-                    .andExpect(jsonPath("$.books", hasSize(1)))
+                    .andExpect(jsonPath("$.books", hasSize(author.getBooks().size())))
                     .andExpect(jsonPath("$.books.[0].isbnId", equalTo(book.getIsbnId())))
                     .andExpect(jsonPath("$.books.[0].title", equalTo(book.getTitle())))
                     .andExpect(jsonPath("$.books.[0].publisher.id", equalTo(publisher.getId().intValue())))
@@ -397,7 +407,7 @@ class AuthorControllerTest {
 
 
     @Nested
-    class AuthorControllerPutTest {
+    class AuthorControllerPutAuthorDataTest {
 
 
         @BeforeEach
@@ -599,9 +609,161 @@ class AuthorControllerTest {
             }
 
         }
+    }
+
+
+    @Nested
+    class AuthorControllerPutAuthorBooksTest {
+
+
+        @BeforeEach
+        void setUp() {
+            when(authorRepository.findById(VALID_ORCID_ID)).thenReturn(Optional.of(author));
+            when(bookRepository.findAll()).thenReturn(booksList);
+            when(authorRepository.save(any(Author.class))).thenReturn(updatedAuthor);
+
+            author.removeBook(book);
+        }
+
+
+        private void shouldReturnInvalidFieldMessageWhenPutAuthorBooks(final String URL, final String body, final String cause) throws Exception {
+            mockMvc.perform(put(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(body))
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.cause", equalTo(cause)));
+        }
 
 
 //    ============================================== PUT author's books ====================================================
+
+
+        @Test
+        void givenValidBookIsbnIdDtoList_whenUpdateAuthorBooks_thenReturnUpdatedAuthor() throws Exception {
+            final List<BookIsbnIdDto> bookIsbnIdDtos = Arrays.asList(
+                    new BookIsbnIdDto(newBook.getIsbnId())
+            );
+
+            mockMvc.perform(put("/authors/" + author.getOrcidId() + "/books")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(toJson(bookIsbnIdDtos)))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.orcidId", equalTo(updatedAuthor.getOrcidId())))
+                    .andExpect(jsonPath("$.firstName", equalTo(updatedAuthor.getFirstName())))
+                    .andExpect(jsonPath("$.lastName", equalTo(updatedAuthor.getLastName())))
+                    .andExpect(jsonPath("$.books", hasSize(updatedAuthor.getBooks().size())))
+                    .andExpect(jsonPath("$.books.[0].isbnId", equalTo(newBook.getIsbnId())))
+                    .andExpect(jsonPath("$.books.[0].title", equalTo(newBook.getTitle())))
+                    .andExpect(jsonPath("$.books.[0].publisher.id", equalTo(publisher.getId().intValue())))
+                    .andExpect(jsonPath("$.books.[0].publisher.name", equalTo(publisher.getName())))
+                    .andExpect(jsonPath("$.books.[0].publisher.address", equalTo(publisher.getAddress())))
+                    .andExpect(jsonPath("$.books.[0].publisher.city", equalTo(publisher.getCity())))
+                    .andExpect(jsonPath("$.books.[0].publisher.country", equalTo(publisher.getCountry())))
+                    .andExpect(jsonPath("$.books.[0].publisher.books").doesNotExist());
+        }
+
+
+        @Test
+        void givenShortIsbnIdInBookIsbnIdDtoList_whenUpdateAuthorBooks_thenReturnIsbnIdErrorMessage() throws Exception {
+            final List<BookIsbnIdDto> bookIsbnIdDtos = Arrays.asList(
+                    new BookIsbnIdDto(VALID_ISBN_ID.substring(VALID_ISBN_ID.length() - 1))
+            );
+
+            shouldReturnInvalidFieldMessageWhenPutAuthorBooks(
+                    "/authors/" + author.getOrcidId() + "/books",
+                    toJson(bookIsbnIdDtos),
+                    "Book's ISBN code must only have digits of length of 13!"
+            );
+        }
+
+
+        @Test
+        void givenLongIsbnIdInBookIsbnIdDtoList_whenUpdateAuthorBooks_thenReturnIsbnIdErrorMessage() throws Exception {
+            final List<BookIsbnIdDto> bookIsbnIdDtos = Arrays.asList(
+                    new BookIsbnIdDto(VALID_ISBN_ID.repeat(2))
+            );
+
+            shouldReturnInvalidFieldMessageWhenPutAuthorBooks(
+                    "/authors/" + author.getOrcidId() + "/books",
+                    toJson(bookIsbnIdDtos),
+                    "Book's ISBN code must only have digits of length of 13!"
+            );
+        }
+
+
+        @Test
+        void givenIsbnIdWithInvalidCharactersInBookIsbnIdDtoList_whenUpdateAuthorBooks_thenReturnIsbnIdErrorMessage() throws Exception {
+            final List<BookIsbnIdDto> bookIsbnIdDtos = Arrays.asList(
+                    new BookIsbnIdDto(VALID_ISBN_ID + "_A")
+            );
+
+            shouldReturnInvalidFieldMessageWhenPutAuthorBooks(
+                    "/authors/" + author.getOrcidId() + "/books",
+                    toJson(bookIsbnIdDtos),
+                    "Book's ISBN code must only have digits of length of 13!"
+            );
+        }
+
+
+        @Test
+        void givenLongOrcidIdPathVariable_whenUpdateAuthorBooks_thenReturnOrcidIdErrorMessage() throws Exception {
+            final List<BookIsbnIdDto> bookIsbnIdDtos = Arrays.asList(
+                    new BookIsbnIdDto(newBook.getIsbnId())
+            );
+
+            shouldReturnInvalidFieldMessageWhenPutAuthorBooks(
+                    "/authors/" + VALID_ORCID_ID.repeat(2) + "/books",
+                    toJson(bookIsbnIdDtos),
+                    "Author's ORCID code must only have digits of length of 16!"
+            );
+        }
+
+
+        @Test
+        void givenShortOrcidIdPathVariable_whenUpdateAuthorBooks_thenReturnOrcidIdErrorMessage() throws Exception {
+            final List<BookIsbnIdDto> bookIsbnIdDtos = Arrays.asList(
+                    new BookIsbnIdDto(newBook.getIsbnId())
+            );
+
+            shouldReturnInvalidFieldMessageWhenPutAuthorBooks(
+                    "/authors/" + VALID_ORCID_ID.substring(VALID_ORCID_ID.length() - 1) + "/books",
+                    toJson(bookIsbnIdDtos),
+                    "Author's ORCID code must only have digits of length of 16!"
+            );
+        }
+
+
+        @Test
+        void givenOrcidIdWithInvalidCharactersPathVariable_whenUpdateAuthorBooks_thenReturnOrcidIdErrorMessage() throws Exception {
+            final List<BookIsbnIdDto> bookIsbnIdDtos = Arrays.asList(
+                    new BookIsbnIdDto(newBook.getIsbnId())
+            );
+
+            shouldReturnInvalidFieldMessageWhenPutAuthorBooks(
+                    "/authors/" + VALID_ORCID_ID.replace(VALID_ORCID_ID.charAt(0), 'A') + "/books",
+                    toJson(bookIsbnIdDtos),
+                    "Author's ORCID code must only have digits of length of 16!"
+            );
+        }
+
+
+        @Test
+        void givenUnknownValidOrcidIdPathVariable_whenUpdateAuthorBooks_thenReturnOrcidIdErrorMessage() throws Exception {
+            final List<BookIsbnIdDto> bookIsbnIdDtos = Arrays.asList(
+                    new BookIsbnIdDto(newBook.getIsbnId())
+            );
+
+            final String unknownValidOrcidId = author.getOrcidId().replace(author.getOrcidId().charAt(0), (char) (author.getOrcidId().charAt(0) + 1));
+
+            mockMvc.perform(put("/authors/" + unknownValidOrcidId + "/books")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(toJson(bookIsbnIdDtos)))
+                    .andDo(print())
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.cause", equalTo("Author with ORCID code of " + unknownValidOrcidId + " not found!")));
+        }
 
 
         @Test

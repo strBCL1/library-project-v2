@@ -51,6 +51,11 @@ public class Author {
         book.getAuthors().add(this);
     }
 
+    public void removeBook(final Book book) {
+        this.books.remove(book);
+        book.getAuthors().remove(this);
+    }
+
     public void updateAuthorData(final String firstName, final String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
